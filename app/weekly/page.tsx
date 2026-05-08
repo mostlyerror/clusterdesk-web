@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { ClusterCard } from "@/components/ClusterCard";
 import type { Metadata } from "next";
+import type { TickerPageRow } from "@/lib/types";
 
 export const revalidate = 3600;
 
@@ -19,7 +20,7 @@ export default async function WeeklyPage() {
     .from("ticker_pages")
     .select("*")
     .gte("published_at", monday.toISOString())
-    .order("score", { ascending: false });
+    .order("score", { ascending: false }) as { data: TickerPageRow[] | null };
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">

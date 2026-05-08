@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import type { TickerPageRow } from "@/lib/types";
 
 export const revalidate = 3600;
 
@@ -7,7 +8,9 @@ export async function GET() {
   const { data: pages } = await supabase
     .from("ticker_pages")
     .select("ticker, cluster_date, published_at")
-    .order("published_at", { ascending: false });
+    .order("published_at", { ascending: false }) as {
+      data: Pick<TickerPageRow, "ticker" | "cluster_date" | "published_at">[] | null;
+    };
 
   const base = "https://clusterdesk.io";
   const staticPaths = ["/", "/weekly", "/about"];

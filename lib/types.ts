@@ -43,12 +43,37 @@ export interface ClusterRow {
   twitter_post_id: string | null;
 }
 
+export interface EmailSubscriberRow {
+  id?: number;
+  email: string;
+  signup_source: string;
+  created_at?: string;
+}
+
 // Minimal Database type for createClient generic
 export interface Database {
   public: {
     Tables: {
-      ticker_pages: { Row: TickerPageRow };
-      clusters: { Row: ClusterRow };
+      ticker_pages: {
+        Row: TickerPageRow;
+        Insert: Partial<TickerPageRow>;
+        Update: Partial<TickerPageRow>;
+        Relationships: [];
+      };
+      clusters: {
+        Row: ClusterRow;
+        Insert: Partial<ClusterRow>;
+        Update: Partial<ClusterRow>;
+        Relationships: [];
+      };
+      email_subscribers: {
+        Row: EmailSubscriberRow;
+        Insert: Omit<EmailSubscriberRow, "id" | "created_at">;
+        Update: Partial<EmailSubscriberRow>;
+        Relationships: [];
+      };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
   };
 }

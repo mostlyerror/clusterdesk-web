@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
 import { ClusterCard } from "@/components/ClusterCard";
+import type { TickerPageRow } from "@/lib/types";
 
 export const revalidate = 3600;
 
@@ -24,7 +25,7 @@ export default async function TickerDatePage({ params }: Props) {
     .select("*")
     .eq("ticker", upper)
     .eq("cluster_date", date)
-    .single();
+    .single() as { data: TickerPageRow | null; error: unknown };
 
   if (!data) notFound();
 
