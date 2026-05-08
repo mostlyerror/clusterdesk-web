@@ -25,7 +25,7 @@ export default async function TickerDatePage({ params }: Props) {
     .select("*")
     .eq("ticker", upper)
     .eq("cluster_date", date)
-    .single() as { data: TickerPageRow | null; error: unknown };
+    .single<TickerPageRow>();
 
   if (!data) notFound();
 

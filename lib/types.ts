@@ -56,14 +56,14 @@ export interface Database {
     Tables: {
       ticker_pages: {
         Row: TickerPageRow;
-        Insert: Partial<TickerPageRow>;
-        Update: Partial<TickerPageRow>;
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       clusters: {
         Row: ClusterRow;
-        Insert: Partial<ClusterRow>;
-        Update: Partial<ClusterRow>;
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       email_subscribers: {

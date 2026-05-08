@@ -12,9 +12,13 @@ export const metadata: Metadata = {
 
 export default async function WeeklyPage() {
   const now = new Date();
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - now.getDay() + 1);
-  monday.setHours(0, 0, 0, 0);
+  const dayOfWeek = now.getUTCDay(); // 0=Sun, 1=Mon…6=Sat
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const monday = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() - daysFromMonday,
+  ));
 
   const { data: clusters } = await supabase
     .from("ticker_pages")
@@ -26,7 +30,7 @@ export default async function WeeklyPage() {
     <div className="max-w-4xl mx-auto px-6 py-12">
       <h1 className="text-2xl font-bold mb-2">This week&apos;s cluster buys</h1>
       <p className="text-[#787878] mb-8">
-        Week of {monday.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+        Week of {monday.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}
       </p>
       {clusters && clusters.length > 0 ? (
         <div className="grid gap-4">

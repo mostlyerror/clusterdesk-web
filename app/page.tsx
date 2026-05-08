@@ -54,7 +54,7 @@ export default async function HomePage() {
       {/* How it works */}
       <div className="mb-16">
         <h2 className="text-xl font-semibold mb-6">How it works</h2>
-        <div className="grid sm:grid-cols-3 gap-6">
+        <ol className="grid sm:grid-cols-3 gap-6 list-none">
           {[
             {
               step: "01",
@@ -72,13 +72,13 @@ export default async function HomePage() {
               desc: "Top-scored clusters are posted to @clusterdesk on X and emailed in a weekly digest.",
             },
           ].map(({ step, title, desc }) => (
-            <div key={step} className="bg-[#111111] border border-[#222222] rounded-lg p-5">
+            <li key={step} className="bg-[#111111] border border-[#222222] rounded-lg p-5">
               <div className="text-[#22C55E] font-mono text-sm mb-2">{step}</div>
               <div className="font-semibold mb-2">{title}</div>
               <div className="text-[#787878] text-sm">{desc}</div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </div>
   );

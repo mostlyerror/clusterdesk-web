@@ -15,6 +15,14 @@ export async function GET() {
   const base = "https://clusterdesk.io";
   const staticPaths = ["/", "/weekly", "/about"];
 
+  // Deduplicate to one URL per ticker (most recent published_at)
+  const tickerMap = new Map<string, string>();
+  for (const row of pages ?? []) {
+    if (!tickerMap.has(row.ticker)) {
+      tickerMap.set(row.ticker, row.published_at ?? "");
+    }
+  }
+
   const urls = [
     ...staticPaths.map(
       (path) => `
@@ -23,11 +31,11 @@ export async function GET() {
   <changefreq>${path === "/" ? "daily" : "weekly"}</changefreq>
 </url>`
     ),
-    ...(pages ?? []).map(
-      (row) => `
+    ...[...tickerMap.entries()].map(
+      ([ticker, publishedAt]) => `
 <url>
-  <loc>${base}/buys/${row.ticker}</loc>
-  <lastmod>${row.published_at.split("T")[0]}</lastmod>
+  <loc>${base}/buys/${ticker}</loc>
+  <lastmod>${(publishedAt.split("T")[0]) || new Date().toISOString().split("T")[0]}</lastmod>
   <changefreq>weekly</changefreq>
 </url>`
     ),
