@@ -28,7 +28,7 @@ export function ClusterCard({ cluster, publishedAt }: Props) {
         Market cap: ${mcapM}M · {cluster.insider_count} insiders · ${totalK}K total
       </div>
       <div className="flex flex-wrap gap-2">
-        {cluster.roles.map((role) => (
+        {[...new Set(cluster.roles)].map((role) => (
           <span
             key={role}
             className="text-xs bg-[#0f2818] text-[#22C55E] border border-[#1a4a2a] rounded px-2 py-0.5"

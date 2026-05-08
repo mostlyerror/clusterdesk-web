@@ -27,7 +27,8 @@ export function EmailCapture({ source = "landing" }: Props) {
       setStatus("success");
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      setErrorMsg(msg.slice(0, 120));
     }
   }
 
@@ -41,7 +42,9 @@ export function EmailCapture({ source = "landing" }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+      <label htmlFor="email-input" className="sr-only">Email address</label>
       <input
+        id="email-input"
         type="email"
         required
         value={email}
@@ -52,9 +55,10 @@ export function EmailCapture({ source = "landing" }: Props) {
       <button
         type="submit"
         disabled={status === "loading"}
+        aria-busy={status === "loading"}
         className="bg-[#22C55E] text-black font-semibold px-6 py-3 rounded-lg hover:bg-[#16a34a] transition-colors disabled:opacity-60"
       >
-        {status === "loading" ? "..." : "Get alerts"}
+        {status === "loading" ? "Sending…" : "Get alerts"}
       </button>
       {status === "error" && (
         <p className="text-red-400 text-sm mt-1 w-full">{errorMsg}</p>
