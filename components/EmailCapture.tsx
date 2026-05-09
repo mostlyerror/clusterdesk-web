@@ -35,7 +35,7 @@ export function EmailCapture({ source = "landing" }: Props) {
   if (status === "success") {
     return (
       <p className="text-[#22C55E] font-medium">
-        Check your inbox — you&apos;re on the list.
+        You&apos;re on the list.
       </p>
     );
   }
