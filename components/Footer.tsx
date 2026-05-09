@@ -16,6 +16,10 @@ export function Footer() {
           <a href="mailto:hello@clusterdesk.io" className="hover:text-white">
             hello@clusterdesk.io
           </a>
+          {" "}·{" "}
+          <a href="https://x.com/clusterdesk" target="_blank" rel="noopener noreferrer" className="hover:text-white">
+            @clusterdesk
+          </a>
         </p>
       </div>
     </footer>
