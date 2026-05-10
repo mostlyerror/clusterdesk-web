@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 import { supabase } from "@/lib/supabase";
-
-const LOOPS_API_URL = "https://app.loops.so/api/v1/contacts/create";
+import { WelcomeEmail } from "@/emails/WelcomeEmail";
 
 const VALID_SOURCES = ["landing", "weekly", "ticker"] as const;
 type Source = (typeof VALID_SOURCES)[number];
@@ -29,30 +29,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
 
-  const loopsKey = process.env.LOOPS_API_KEY;
-  const welcomeId = process.env.LOOPS_WELCOME_TEMPLATE_ID;
-  if (loopsKey) {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
     try {
-      await fetch(LOOPS_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${loopsKey}`,
-        },
-        body: JSON.stringify({ email, source }),
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
+        from: "ClusterDesk <hey@clusterdesk.io>",
+        to: email,
+        subject: "You're on the list",
+        react: WelcomeEmail(),
       });
-      if (welcomeId) {
-        await fetch("https://app.loops.so/api/v1/transactional", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${loopsKey}`,
-          },
-          body: JSON.stringify({ transactionalId: welcomeId, email }),
-        });
-      }
     } catch {
-      // Loops sync failure is non-fatal — subscriber is in our DB
+      // Welcome email failure is non-fatal — subscriber is already in DB
     }
   }
 
