@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase-server";
 
 export const revalidate = 0;
@@ -90,6 +91,24 @@ export default async function AdminPage() {
           </table>
         </div>
       </section>
+
+      {/* Design gallery link */}
+      <div className="mb-10">
+        <Link
+          href="/admin/explore"
+          className="flex items-center justify-between border border-[#222] rounded-lg px-5 py-4 hover:border-[#444] transition-colors group"
+        >
+          <div>
+            <p className="font-semibold text-sm">Design Gallery</p>
+            <p className="text-[#787878] text-xs mt-0.5">
+              8 different views of this admin — find what works for you
+            </p>
+          </div>
+          <span className="text-[#555] group-hover:text-white transition-colors text-sm">
+            →
+          </span>
+        </Link>
+      </div>
 
       {/* Quick links */}
       <section>
