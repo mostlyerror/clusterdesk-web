@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "email": "react-email dev --dir emails",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

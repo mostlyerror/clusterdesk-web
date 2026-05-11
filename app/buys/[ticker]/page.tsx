@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
 import { ClusterCard } from "@/components/ClusterCard";
+import { EmailCapture } from "@/components/EmailCapture";
 import type { TickerPageRow } from "@/lib/types";
 
 export const revalidate = 3600;
@@ -111,6 +112,12 @@ export default async function TickerPage({ params }: Props) {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Email capture */}
+        <div className="mb-10 border border-[#222222] rounded-lg p-6">
+          <p className="text-sm text-[#787878] mb-3">Get alerted when new cluster buys hit</p>
+          <EmailCapture source="ticker" />
         </div>
 
         {/* History */}
