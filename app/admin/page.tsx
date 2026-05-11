@@ -1,142 +1,159 @@
-import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase-server";
+import AdminControls, {
+  type ActivityEvent,
+  type ChecklistItem,
+  type DashboardProProps,
+} from "./AdminControls";
 
 export const revalidate = 0;
 
-const LINKS = [
-  { label: "Railway", desc: "Cron logs + env vars", href: "https://railway.app" },
-  { label: "Vercel", desc: "Web deploys + function logs", href: "https://vercel.com" },
-  { label: "Supabase", desc: "Database + queries", href: "https://supabase.com" },
-  { label: "Resend", desc: "Email delivery logs", href: "https://resend.com" },
-  { label: "GitHub (web)", desc: "clusterdesk-web", href: "https://github.com/mostlyerror/clusterdesk-web" },
-  { label: "GitHub (worker)", desc: "clusterdesk-worker", href: "https://github.com/mostlyerror/clusterdesk-worker" },
-  { label: "X / Twitter", desc: "@clusterdesk", href: "https://x.com/clusterdesk" },
-];
+// ─── Data helpers ─────────────────────────────────────────────────────────────
 
-async function getStats() {
+function computePipelineStatus(
+  lastPublishedAt: string | null
+): DashboardProProps["pipelineStatus"] {
+  if (!lastPublishedAt) return "UNKNOWN";
+  const hoursAgo =
+    (Date.now() - new Date(lastPublishedAt).getTime()) / 1000 / 3600;
+  if (hoursAgo <= 24) return "NOMINAL";
+  if (hoursAgo <= 72) return "DEGRADED";
+  return "DOWN";
+}
+
+// ─── Data fetching ────────────────────────────────────────────────────────────
+
+async function getDashboardData(): Promise<DashboardProProps> {
   const db = createAdminClient();
 
-  const [subscribersRes, clustersRes, weekRes] = await Promise.all([
+  const now = new Date();
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+  const [allSubsRes, newSubsRes, prevSubsRes, totalClustersRes, recentClustersRes, recentSubsRes] = await Promise.all([
     db.from("email_subscribers").select("*", { count: "exact", head: true }),
-    db.from("clusters").select("*", { count: "exact", head: true }).not("published_at", "is", null),
-    db.from("clusters")
-      .select("ticker,company_name:payload->company_name,score,published_at,twitter_post_id")
+    db
+      .from("email_subscribers")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", oneWeekAgo.toISOString()),
+    db
+      .from("email_subscribers")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", twoWeeksAgo.toISOString())
+      .lt("created_at", oneWeekAgo.toISOString()),
+    db
+      .from("clusters")
+      .select("*", { count: "exact", head: true })
+      .not("published_at", "is", null),
+    db
+      .from("clusters")
+      .select("ticker,score,published_at")
       .not("published_at", "is", null)
       .order("published_at", { ascending: false })
-      .limit(10),
+      .limit(30),
+    db
+      .from("email_subscribers")
+      .select("email,created_at")
+      .order("created_at", { ascending: false })
+      .limit(30),
   ]);
 
+  const totalSubscribers = allSubsRes.count ?? 0;
+  const subsThisWeek = newSubsRes.count ?? 0;
+  const subsLastWeek = prevSubsRes.count ?? 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const clusters = (recentClustersRes.data ?? []) as any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subscribers = (recentSubsRes.data ?? []) as any[];
+
+  const lastPublishedAt: string | null = clusters[0]?.published_at ?? null;
+  const status = computePipelineStatus(lastPublishedAt);
+
+  // Build merged activity feed (newest first, max 30)
+  const clusterEvents: ActivityEvent[] = clusters.map((c) => ({
+    type: "cluster" as const,
+    ticker: c.ticker as string,
+    score: c.score as number,
+    published_at: c.published_at as string,
+  }));
+  const subEvents: ActivityEvent[] = subscribers.map((s) => ({
+    type: "subscriber" as const,
+    email: s.email as string,
+    created_at: s.created_at as string,
+  }));
+
+  const activity: ActivityEvent[] = [...clusterEvents, ...subEvents]
+    .sort((a, b) => {
+      const aTime = a.type === "cluster" ? a.published_at : a.created_at;
+      const bTime = b.type === "cluster" ? b.published_at : b.created_at;
+      return new Date(bTime).getTime() - new Date(aTime).getTime();
+    })
+    .slice(0, 30);
+
+  const resendConfigured = Boolean(process.env.RESEND_API_KEY);
+  const hasContent = (recentClustersRes.data ?? []).length > 0;
+  const pipelineOk = status === "NOMINAL" || status === "DEGRADED";
+
+  const checklist: ChecklistItem[] = [
+    {
+      label: "Pipeline ran recently",
+      pass: status === "NOMINAL",
+      detail:
+        status === "NOMINAL"
+          ? "Last cluster was published within 24 hours. Pipeline is healthy."
+          : status === "DEGRADED"
+          ? "Last publish was 1-3 days ago. Check Railway logs — may have been a weekend or holiday."
+          : status === "DOWN"
+          ? "No publish in 3+ days. Check Railway logs and verify DRY_RUN=false in env vars."
+          : "No clusters published yet. Run the pipeline to generate the first cluster.",
+    },
+    {
+      label: "Subscribers are growing",
+      pass: subsThisWeek >= subsLastWeek || totalSubscribers > 0,
+      detail:
+        subsThisWeek >= subsLastWeek
+          ? `${subsThisWeek} new subscribers this week vs ${subsLastWeek} last week. Growth looks healthy.`
+          : `${subsThisWeek} this week vs ${subsLastWeek} last week — growth slowed. Consider a marketing push or check the signup form.`,
+    },
+    {
+      label: "Content is live",
+      pass: hasContent,
+      detail: hasContent
+        ? `Clusters are published and live on the site.`
+        : "No clusters published yet. The /buys page will be empty until the pipeline runs.",
+    },
+    {
+      label: "Email (Resend) configured",
+      pass: resendConfigured,
+      detail: resendConfigured
+        ? "RESEND_API_KEY is set in the environment. Welcome emails should be sending."
+        : "RESEND_API_KEY is missing. Welcome emails are silently failing. Add the key to Vercel environment variables.",
+    },
+    {
+      label: "Pipeline has run at all",
+      pass: pipelineOk || hasContent,
+      detail:
+        pipelineOk || hasContent
+          ? "The worker has run at least once and published data to Supabase."
+          : "No evidence the pipeline has ever run. Verify Railway is deployed and scheduled. Check the SUPABASE_SERVICE_ROLE_KEY and DRY_RUN env vars in Railway.",
+    },
+  ];
+
   return {
-    subscriberCount: subscribersRes.count ?? 0,
-    totalPublished: clustersRes.count ?? 0,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  recentClusters: (weekRes.data ?? []) as any[],
+    totalSubscribers,
+    subsThisWeek,
+    subsLastWeek,
+    totalPublished: totalClustersRes.count ?? 0,
+    lastPublishedAt,
+    pipelineStatus: status,
+    activity,
+    checklist,
   };
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default async function AdminPage() {
-  const { subscriberCount, totalPublished, recentClusters } = await getStats();
-  const lastPublished = recentClusters[0]?.published_at;
-
-  return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-8">ClusterDesk Admin</h1>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-10">
-        <Stat label="Subscribers" value={subscriberCount} />
-        <Stat label="Clusters published" value={totalPublished} />
-        <Stat
-          label="Last published"
-          value={lastPublished ? new Date(lastPublished).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
-        />
-      </div>
-
-      {/* Recent clusters */}
-      <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-4">Recent clusters</h2>
-        <div className="border border-[#222] rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-[#787878] border-b border-[#222] bg-[#111]">
-                <th className="text-left px-4 py-3">Ticker</th>
-                <th className="text-left px-4 py-3">Company</th>
-                <th className="text-left px-4 py-3">Score</th>
-                <th className="text-left px-4 py-3">Published</th>
-                <th className="text-left px-4 py-3">Links</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentClusters.map((c: Record<string, string | number | null>) => (
-                <tr key={`${c.ticker}-${c.published_at}`} className="border-b border-[#1a1a1a] last:border-0">
-                  <td className="px-4 py-3 font-mono text-[#22C55E]">
-                    <a href={`/buys/${c.ticker}`} className="hover:underline">{String(c.ticker)}</a>
-                  </td>
-                  <td className="px-4 py-3 text-[#ccc]">{String(c.company_name ?? "")}</td>
-                  <td className="px-4 py-3">{String(c.score)}</td>
-                  <td className="px-4 py-3 text-[#787878] text-xs">
-                    {c.published_at ? new Date(String(c.published_at)).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—"}
-                  </td>
-                  <td className="px-4 py-3 flex gap-3 text-xs">
-                    {c.twitter_post_id && (
-                      <a href={`https://x.com/clusterdesk/status/${c.twitter_post_id}`} target="_blank" rel="noopener noreferrer" className="text-[#787878] hover:text-white">X post ↗</a>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {recentClusters.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-6 text-center text-[#787878]">No clusters published yet</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Design gallery link */}
-      <div className="mb-10">
-        <Link
-          href="/admin/explore"
-          className="flex items-center justify-between border border-[#222] rounded-lg px-5 py-4 hover:border-[#444] transition-colors group"
-        >
-          <div>
-            <p className="font-semibold text-sm">Design Gallery</p>
-            <p className="text-[#787878] text-xs mt-0.5">
-              8 different views of this admin — find what works for you
-            </p>
-          </div>
-          <span className="text-[#555] group-hover:text-white transition-colors text-sm">
-            →
-          </span>
-        </Link>
-      </div>
-
-      {/* Quick links */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4">Services</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-[#222] rounded-lg px-4 py-3 hover:border-[#444] transition-colors"
-            >
-              <p className="font-medium text-sm">{link.label}</p>
-              <p className="text-[#787878] text-xs mt-0.5">{link.desc}</p>
-            </a>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="border border-[#222] rounded-lg px-4 py-4">
-      <p className="text-[#787878] text-xs mb-1">{label}</p>
-      <p className="text-2xl font-bold">{value}</p>
-    </div>
-  );
+  const data = await getDashboardData();
+  return <AdminControls {...data} />;
 }
