@@ -33,11 +33,10 @@ export interface DashboardProProps {
 
 // ─── Nav config ─────────────────────────────────────────────────────────────
 
-type NavSection = "Overview" | "Activity" | "Checklist" | "Actions" | "Systems";
+type NavSection = "Overview" | "Checklist" | "Actions" | "Systems";
 
 const NAV_ITEMS: { id: NavSection; symbol: string }[] = [
   { id: "Overview", symbol: "◉" },
-  { id: "Activity", symbol: "≡" },
   { id: "Checklist", symbol: "✓" },
   { id: "Actions", symbol: "⚙" },
   { id: "Systems", symbol: "⬡" },
@@ -347,21 +346,21 @@ function ActivitySection({ activity }: { activity: ActivityEvent[] }) {
 
   return (
     <div>
-      <SectionHeader
-        title="Activity"
-        sub="Last 30 events — cluster publishes and subscriber signups, newest first."
-      />
-
-      <Callout>
-        This feed combines cluster publish events and email subscriber signups into a single
-        chronological timeline. A healthy system shows a steady mix of both. Green dots are cluster
-        publishes; blue dots are new subscribers. No events in the last 24h could indicate a
-        pipeline or marketing problem.
-      </Callout>
+      <p
+        style={{
+          fontSize: "11px",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          color: "#555",
+          marginBottom: "16px",
+        }}
+      >
+        Activity
+      </p>
 
       <div
         style={{
-          marginTop: "28px",
           border: "1px solid #222",
           borderRadius: "8px",
           overflow: "hidden",
@@ -869,24 +868,42 @@ export default function AdminControls(props: DashboardProProps) {
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, overflowY: "auto" }}>
-        <div style={{ maxWidth: "720px", padding: "40px 48px" }}>
-          {active === "Overview" && (
-            <OverviewSection
-              totalSubscribers={props.totalSubscribers}
-              subsThisWeek={props.subsThisWeek}
-              subsLastWeek={props.subsLastWeek}
-              totalPublished={props.totalPublished}
-              lastPublishedAt={props.lastPublishedAt}
-              pipelineStatus={props.pipelineStatus}
-              checklist={props.checklist}
-            />
-          )}
-          {active === "Activity" && <ActivitySection activity={props.activity} />}
-          {active === "Checklist" && <ChecklistSection checklist={props.checklist} />}
-          {active === "Actions" && <ActionsSection />}
-          {active === "Systems" && <SystemsSection />}
-        </div>
+      <main style={{ flex: 1, overflowY: "auto", display: "flex" }}>
+        {active === "Overview" ? (
+          <>
+            <div style={{ flex: 1, minWidth: 0, padding: "40px 48px", maxWidth: "680px" }}>
+              <OverviewSection
+                totalSubscribers={props.totalSubscribers}
+                subsThisWeek={props.subsThisWeek}
+                subsLastWeek={props.subsLastWeek}
+                totalPublished={props.totalPublished}
+                lastPublishedAt={props.lastPublishedAt}
+                pipelineStatus={props.pipelineStatus}
+                checklist={props.checklist}
+              />
+            </div>
+            <div
+              style={{
+                width: "320px",
+                flexShrink: 0,
+                borderLeft: "1px solid #1a1a1a",
+                padding: "40px 28px",
+                overflowY: "auto",
+                position: "sticky",
+                top: 0,
+                height: "100vh",
+              }}
+            >
+              <ActivitySection activity={props.activity} />
+            </div>
+          </>
+        ) : (
+          <div style={{ maxWidth: "720px", padding: "40px 48px" }}>
+            {active === "Checklist" && <ChecklistSection checklist={props.checklist} />}
+            {active === "Actions" && <ActionsSection />}
+            {active === "Systems" && <SystemsSection />}
+          </div>
+        )}
       </main>
     </div>
   );
