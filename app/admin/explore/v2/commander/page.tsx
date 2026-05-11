@@ -340,6 +340,8 @@ export default async function AdminCommanderPage() {
   ];
 
   return (
+    <>
+    <style>{`.svc-link:hover { border-color: #333 !important; }`}</style>
     <div
       style={{
         minHeight: "100vh",
@@ -619,8 +621,7 @@ export default async function AdminCommanderPage() {
                   transition: "border-color 0.15s",
                   gap: "12px",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#333")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#1e1e1e")}
+                className="svc-link"
               >
                 <div style={{ minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
@@ -894,5 +895,6 @@ export default async function AdminCommanderPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

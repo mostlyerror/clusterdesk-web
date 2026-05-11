@@ -321,6 +321,8 @@ export default async function AdminPage() {
   ];
 
   return (
+    <>
+    <style>{`.svc-link:hover { border-color: #444 !important; }`}</style>
     <div
       style={{
         background: "#0A0A0A",
@@ -687,8 +689,7 @@ export default async function AdminPage() {
                   textDecoration: "none",
                   transition: "border-color 0.15s",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "#444"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "#1e1e1e"; }}
+                className="svc-link"
               >
                 <p style={{ margin: "0 0 3px", fontSize: 12, fontWeight: 600, color: "#fff" }}>
                   {s.label} ↗
@@ -702,5 +703,6 @@ export default async function AdminPage() {
         </SectionCard>
       </div>
     </div>
+    </>
   );
 }
