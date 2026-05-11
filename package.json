@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "email": "react-email dev --dir emails",
+    "email": "npx react-email dev --dir emails",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -32,6 +32,7 @@
     "resend": "^6.12.3"
   },
   "devDependencies": {
+    "@react-email/ui": "^6.1.1",
     "@tailwindcss/postcss": "^4",
     "@types/jest": "^29.5.14",
     "@types/node": "^20",

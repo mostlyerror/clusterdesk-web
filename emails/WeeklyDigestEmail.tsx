@@ -17,11 +17,23 @@ interface Cluster {
 }
 
 interface Props {
-  clusters: Cluster[];
-  weekOf: string;
+  clusters?: Cluster[];
+  weekOf?: string;
 }
 
-export function WeeklyDigestEmail({ clusters, weekOf }: Props) {
+const PREVIEW_CLUSTERS: Cluster[] = [
+  { ticker: "OFIX", company_name: "Orthofix Medical Inc", score: 74 },
+  { ticker: "HCAT", company_name: "Health Catalyst Inc", score: 68 },
+];
+
+export function PreviewProps(): Props {
+  return {
+    clusters: PREVIEW_CLUSTERS,
+    weekOf: "May 12, 2026",
+  };
+}
+
+export function WeeklyDigestEmail({ clusters = PREVIEW_CLUSTERS, weekOf = "This week" }: Props) {
   return (
     <Html>
       <Head />
