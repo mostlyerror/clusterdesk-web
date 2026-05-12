@@ -29,7 +29,7 @@ async function getDashboardData(): Promise<DashboardProProps> {
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const [allSubsRes, newSubsRes, prevSubsRes, totalClustersRes, recentClustersRes, recentSubsRes] = await Promise.all([
+  const [allSubsRes, newSubsRes, prevSubsRes, totalClustersRes, pendingClustersRes, recentClustersRes, recentSubsRes] = await Promise.all([
     db.from("email_subscribers").select("*", { count: "exact", head: true }),
     db
       .from("email_subscribers")
@@ -44,6 +44,10 @@ async function getDashboardData(): Promise<DashboardProProps> {
       .from("clusters")
       .select("*", { count: "exact", head: true })
       .not("published_at", "is", null),
+    db
+      .from("clusters")
+      .select("*", { count: "exact", head: true })
+      .is("published_at", null),
     db
       .from("clusters")
       .select("ticker,score,published_at")
@@ -144,6 +148,7 @@ async function getDashboardData(): Promise<DashboardProProps> {
     subsThisWeek,
     subsLastWeek,
     totalPublished: totalClustersRes.count ?? 0,
+    pendingClusters: pendingClustersRes.count ?? 0,
     lastPublishedAt,
     pipelineStatus: status,
     activity,

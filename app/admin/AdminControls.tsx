@@ -25,6 +25,7 @@ export interface DashboardProProps {
   subsThisWeek: number;
   subsLastWeek: number;
   totalPublished: number;
+  pendingClusters: number;
   lastPublishedAt: string | null;
   pipelineStatus: "NOMINAL" | "DEGRADED" | "DOWN" | "UNKNOWN";
   activity: ActivityEvent[];
@@ -106,11 +107,13 @@ function StatCard({
   value,
   sub,
   accent,
+  subAccent,
 }: {
   label: string;
   value: string | number;
   sub?: string;
   accent?: string;
+  subAccent?: string;
 }) {
   return (
     <div
@@ -136,7 +139,7 @@ function StatCard({
         {value}
       </p>
       {sub && (
-        <p style={{ color: "#555", fontSize: "12px", marginTop: "6px" }}>{sub}</p>
+        <p style={{ color: subAccent ?? "#555", fontSize: "12px", marginTop: "6px" }}>{sub}</p>
       )}
     </div>
   );
@@ -213,6 +216,7 @@ function OverviewSection({
   subsThisWeek,
   subsLastWeek,
   totalPublished,
+  pendingClusters,
   lastPublishedAt,
   pipelineStatus,
   checklist,
@@ -222,6 +226,7 @@ function OverviewSection({
   | "subsThisWeek"
   | "subsLastWeek"
   | "totalPublished"
+  | "pendingClusters"
   | "lastPublishedAt"
   | "pipelineStatus"
   | "checklist"
@@ -273,7 +278,12 @@ function OverviewSection({
       >
         <StatCard label="Total subscribers" value={totalSubscribers} sub={deltaLabel} />
         <StatCard label="New this week" value={subsThisWeek} sub={`Last week: ${subsLastWeek}`} />
-        <StatCard label="Clusters published" value={totalPublished} />
+        <StatCard
+          label="Clusters published"
+          value={totalPublished}
+          sub={pendingClusters > 0 ? `${pendingClusters} pending (scored, not published)` : undefined}
+          subAccent={pendingClusters > 0 ? "#f59e0b" : undefined}
+        />
         <StatCard
           label="Pipeline status"
           value={pipelineStatus}
@@ -877,6 +887,7 @@ export default function AdminControls(props: DashboardProProps) {
                 subsThisWeek={props.subsThisWeek}
                 subsLastWeek={props.subsLastWeek}
                 totalPublished={props.totalPublished}
+                pendingClusters={props.pendingClusters}
                 lastPublishedAt={props.lastPublishedAt}
                 pipelineStatus={props.pipelineStatus}
                 checklist={props.checklist}
