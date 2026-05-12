@@ -80,6 +80,22 @@ export default async function TickerPage({ params }: Props) {
           </p>
         </div>
 
+        {/* What is a cluster buy */}
+        <div className="mb-10 border border-[#1a1a1a] rounded-lg p-5 bg-[#0a0a0a]">
+          <p className="text-sm text-[#ccc] leading-relaxed">
+            A <strong className="text-white">cluster buy</strong> happens when two or more company
+            insiders — executives, directors, or major shareholders — purchase stock{" "}
+            <strong className="text-white">independently within a short window</strong>. Unlike a
+            single insider trade, a cluster signals broad conviction: multiple people with direct
+            knowledge of the business are all betting their own money at the same time.
+          </p>
+          <p className="text-sm text-[#787878] mt-3 leading-relaxed">
+            The <strong className="text-[#ccc]">score (0–100)</strong> weighs the number of buyers,
+            total dollars invested, the insiders&apos; seniority, how tight the buying window was,
+            and company size. Higher scores indicate stronger, more concentrated conviction.
+          </p>
+        </div>
+
         <div className="mb-10">
           <h2 className="text-lg font-semibold mb-4">Latest cluster</h2>
           <ClusterCard cluster={latest.payload} publishedAt={latest.published_at} />
@@ -102,7 +118,20 @@ export default async function TickerPage({ params }: Props) {
                 {latest.payload.filings.map((f, i) => (
                   <tr key={i} className="border-b border-[#1a1a1a]">
                     <td className="py-3 pr-4">{f.insider_name}</td>
-                    <td className="py-3 pr-4 text-[#787878]">{f.insider_title}</td>
+                    <td className="py-3 pr-4 text-[#787878]">
+                      {f.insider_title.toLowerCase() === "see remarks" ? (
+                        <a
+                          href={f.filing_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#555] hover:text-[#787878] underline underline-offset-2"
+                        >
+                          See SEC filing ↗
+                        </a>
+                      ) : (
+                        f.insider_title
+                      )}
+                    </td>
                     <td className="py-3 pr-4 text-[#787878]">{f.trade_date}</td>
                     <td className="py-3 text-right text-[#22C55E]">
                       ${f.trade_value_usd.toLocaleString()}

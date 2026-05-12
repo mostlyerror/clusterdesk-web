@@ -24,10 +24,14 @@ export function ClusterCard({ cluster, publishedAt }: Props) {
           {cluster.score}/100
         </span>
       </div>
-      <div className="text-[#787878] text-sm mb-3">
-        Market cap: ${mcapM}M · {cluster.insider_count} insiders · ${totalK}K total
+      <div className="text-[#ccc] text-sm mb-3">
+        {cluster.insider_count} company insider{cluster.insider_count !== 1 ? "s" : ""} bought{" "}
+        <span className="text-white font-medium">${totalK}K</span> combined in a{" "}
+        {cluster.insider_count > 2 ? "tight" : "coordinated"} window.{" "}
+        <span className="text-[#787878]">Market cap: ${mcapM}M.</span>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-[#555] mr-1">Who bought:</span>
         {[...new Set(cluster.roles)].map((role) => (
           <span
             key={role}
