@@ -34,14 +34,14 @@ export function EmailCapture({ source = "landing" }: Props) {
 
   if (status === "success") {
     return (
-      <p className="text-[#22C55E] font-medium">
+      <p style={{ color: "#2D6A4F", fontWeight: 500 }}>
         You&apos;re on the list.
       </p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+    <form onSubmit={handleSubmit} style={{ display: "flex", gap: 0, width: "100%", maxWidth: 440 }}>
       <label htmlFor="email-input" className="sr-only">Email address</label>
       <input
         id="email-input"
@@ -50,18 +50,43 @@ export function EmailCapture({ source = "landing" }: Props) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="your@email.com"
-        className="flex-1 bg-[#111111] border border-[#333333] text-white placeholder-[#787878] rounded-lg px-4 py-3 focus:outline-none focus:border-[#22C55E] transition-colors"
+        style={{
+          flex: 1,
+          height: 48,
+          border: "1px solid #E8E8E4",
+          borderRight: "none",
+          background: "#FFFFFF",
+          padding: "0 16px",
+          fontSize: 14,
+          color: "#1A1A1A",
+          outline: "none",
+          fontFamily: "var(--font-sans, system-ui, sans-serif)",
+        }}
       />
       <button
         type="submit"
         disabled={status === "loading"}
-        aria-busy={status === "loading"}
-        className="bg-[#22C55E] text-black font-semibold px-6 py-3 rounded-lg hover:bg-[#16a34a] transition-colors disabled:opacity-60"
+        style={{
+          height: 48,
+          padding: "0 24px",
+          background: "#2D6A4F",
+          color: "#FFFFFF",
+          border: "none",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          cursor: status === "loading" ? "default" : "pointer",
+          opacity: status === "loading" ? 0.6 : 1,
+          whiteSpace: "nowrap",
+          fontFamily: "var(--font-sans, system-ui, sans-serif)",
+          flexShrink: 0,
+        }}
       >
         {status === "loading" ? "Sending…" : "Get alerts"}
       </button>
       {status === "error" && (
-        <p className="text-red-400 text-sm mt-1 w-full">{errorMsg}</p>
+        <p style={{ color: "#DC2626", fontSize: 12, marginTop: 8, width: "100%" }}>{errorMsg}</p>
       )}
     </form>
   );
