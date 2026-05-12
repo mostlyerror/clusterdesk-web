@@ -182,7 +182,14 @@ export default async function HomePage() {
                 A <strong style={{ color: "#1A1A1A" }}>cluster buy</strong> happens when two or more company insiders — executives, directors, or major shareholders — purchase stock{" "}
                 <strong style={{ color: "#1A1A1A" }}>independently within a short window</strong>. Unlike a single trade, which can be noise, a cluster signals broad internal conviction: multiple people with direct knowledge of the business are all betting their own money at the same time.
               </p>
-              <p style={{ fontSize: 12, color: "#C0C0C0" }}>Source: SEC Form 4 filings, publicly available within 2 business days of each trade.</p>
+              <p style={{ fontSize: 13, color: "#6A6A6A", lineHeight: 1.65, marginBottom: 12, maxWidth: 560 }}>
+                The academic evidence backs it up. Alldredge & Blank (2019) found that insider purchases made within 2 days of a colleague&apos;s purchase generate{" "}
+                <strong style={{ color: "#1A1A1A" }}>2.1% abnormal returns over the following month</strong> — nearly double the 1.2% from solitary insider trades. Lakonishok & Lee (2001) found the effect is strongest in smaller firms, where informational advantages are largest.
+              </p>
+              <p style={{ fontSize: 12, color: "#C0C0C0" }}>
+                Source: SEC Form 4 filings, publicly available within 2 business days of each trade.{" "}
+                <a href="/about#research" style={{ color: "#9A9A9A", textDecoration: "underline", textUnderlineOffset: 3 }}>Read the research →</a>
+              </p>
             </div>
           </div>
         </div>

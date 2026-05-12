@@ -38,6 +38,45 @@ const sections: { title: string; content?: string; items?: string[]; small?: boo
   },
 ];
 
+const papers = [
+  {
+    authors: "Alldredge, D. M. & Blank, B.",
+    year: "2019",
+    title: "Do Insiders Cluster Trades With Colleagues? Evidence From Daily Insider Trading",
+    journal: "Journal of Financial Research",
+    vol: "Vol. 42(2), pp. 331–360",
+    finding: "Insider purchases made within 2 days of a colleague's purchase generate 2.1% abnormal returns over the next month — nearly double the 1.2% from solitary insider purchases. Over 90 days, cluster buys yield 5.8% vs. 3.3% for non-cluster buys. The effect is strongest among insiders who work closely together and during periods of high information asymmetry.",
+    url: "https://onlinelibrary.wiley.com/doi/abs/10.1111/jfir.12172",
+  },
+  {
+    authors: "Lakonishok, J. & Lee, I.",
+    year: "2001",
+    title: "Are Insider Trades Informative?",
+    journal: "Review of Financial Studies",
+    vol: "Vol. 14(1), pp. 79–111",
+    finding: "Insider purchases — not sales — reliably predict future stock returns, with the effect concentrated in smaller firms where informational advantages are greatest. Purchases by multiple insiders amplify the signal. This paper established why micro-cap cluster buys are particularly information-rich.",
+    url: "https://academic.oup.com/rfs/article-abstract/14/1/79/1587398",
+  },
+  {
+    authors: "Cohen, L., Malloy, C. & Pomorski, L.",
+    year: "2012",
+    title: "Decoding Inside Information",
+    journal: "Journal of Finance",
+    vol: "Vol. 67(3), pp. 1009–1043",
+    finding: "Distinguishes \"routine\" insider trades (predictable, calendar-based, uninformative) from \"opportunistic\" ones (irregular, conviction-driven). Opportunistic purchases — the kind that form cluster events — generate 82 basis points of monthly alpha. Routine trades generate none. Won the Chicago Quantitative Alliance Academic Paper Competition First Prize.",
+    url: "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-6261.2012.01740.x",
+  },
+  {
+    authors: "Seyhun, H. N.",
+    year: "1992",
+    title: "Why Does Aggregate Insider Trading Predict Future Stock Returns?",
+    journal: "Quarterly Journal of Economics",
+    vol: "Vol. 107(4), pp. 1303–1331",
+    finding: "Aggregate net insider purchases predict 60% of one-year-ahead stock market returns across a 15-year sample (1975–1989). The more insiders buying simultaneously — across or within companies — the stronger the forward-looking signal. One of the earliest papers quantifying the information content of coordinated insider activity.",
+    url: "https://academic.oup.com/qje/article-abstract/107/4/1303/1846948",
+  },
+];
+
 export default function AboutPage() {
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px" }}>
@@ -68,6 +107,49 @@ export default function AboutPage() {
           </div>
         </div>
       ))}
+
+      {/* Research section */}
+      <div id="research" style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4", display: "grid", gridTemplateColumns: "200px 1fr", gap: 48 }}>
+        <div>
+          <p style={label}>Academic research</p>
+        </div>
+        <div>
+          <p style={{ fontSize: 15, fontWeight: 300, color: "#4A4A4A", lineHeight: 1.75, marginBottom: 40 }}>
+            Insider cluster buying is not a novel idea — it has been studied in peer-reviewed finance journals for decades. The evidence consistently shows that coordinated insider purchases, especially in smaller firms, carry significant predictive power for future returns.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+            {papers.map((p) => (
+              <div key={p.title} style={{ borderLeft: "2px solid #E8E8E4", paddingLeft: 24 }}>
+                <div style={{ display: "flex", gap: 12, alignItems: "baseline", flexWrap: "wrap", marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#1A1A1A" }}>{p.authors} ({p.year})</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "#9A9A9A" }}>{p.journal}</span>
+                </div>
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: 14, fontStyle: "italic", color: "#2D6A4F", textDecoration: "none", display: "block", marginBottom: 8 }}
+                >
+                  {p.title} ↗
+                </a>
+                <p style={{ fontSize: 13, fontWeight: 300, color: "#6A6A6A", lineHeight: 1.7, marginBottom: 4 }}>{p.finding}</p>
+                <p style={{ fontSize: 11, color: "#C0C0C0" }}>{p.vol}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 12, color: "#C0C0C0", marginTop: 32, lineHeight: 1.6 }}>
+            ClusterDesk does not claim to replicate or guarantee the returns described in any academic study. Past research findings do not guarantee future results. This section is provided for informational context only.
+          </p>
+        </div>
+      </div>
+
+      {/* Disclaimer repeated */}
+      <div style={{ padding: "40px 0", display: "grid", gridTemplateColumns: "200px 1fr", gap: 48 }}>
+        <p style={label}>Disclaimer</p>
+        <p style={{ fontSize: 13, fontWeight: 300, color: "#4A4A4A", lineHeight: 1.75 }}>
+          ClusterDesk is for informational and educational purposes only. It is not financial advice, investment advice, or a recommendation to buy or sell any security. Information is derived from publicly available SEC Form 4 filings. Past insider trading patterns do not guarantee future stock performance. Always conduct your own research and consult a licensed financial advisor before making investment decisions. ClusterDesk is not a registered investment adviser.
+        </p>
+      </div>
     </div>
   );
 }
