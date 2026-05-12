@@ -1,25 +1,16 @@
 export function Footer() {
   return (
-    <footer className="border-t border-[#222222] mt-20 px-6 py-10">
-      <div className="max-w-4xl mx-auto">
-        <p className="text-[#787878] text-xs leading-relaxed">
-          ClusterDesk is for informational and educational purposes only. It is not financial
-          advice, investment advice, or a recommendation to buy or sell any security. Information
-          is derived from publicly available SEC Form 4 filings. Past insider trading patterns
-          do not guarantee future stock performance. Always conduct your own research and consult
-          a licensed financial advisor before making investment decisions. ClusterDesk is not a
-          registered investment adviser. By subscribing or visiting this site, you acknowledge
-          these terms.
-        </p>
-        <p className="text-[#787878] text-xs mt-4">
+    <footer style={{ borderTop: "1px solid #1A1A1A", marginTop: 80 }}>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "24px 32px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 48, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 11, color: "#9A9A9A", letterSpacing: "0.04em" }}>
           © {new Date().getFullYear()} ClusterDesk ·{" "}
-          <a href="mailto:hello@clusterdesk.io" className="hover:text-white">
-            hello@clusterdesk.io
-          </a>
+          <a href="mailto:hello@clusterdesk.io" style={{ color: "#9A9A9A" }}>hello@clusterdesk.io</a>
           {" "}·{" "}
-          <a href="https://x.com/clusterdesk" target="_blank" rel="noopener noreferrer" className="hover:text-white">
-            @clusterdesk
-          </a>
+          <a href="https://x.com/clusterdesk" target="_blank" rel="noopener noreferrer" style={{ color: "#9A9A9A" }}>@clusterdesk</a>
+        </span>
+        <p style={{ fontSize: 11, color: "#9A9A9A", maxWidth: 480, textAlign: "right", lineHeight: 1.6 }}>
+          Not investment advice. All data sourced from publicly available SEC Form 4 filings.
+          Past insider activity does not guarantee future returns.
         </p>
       </div>
     </footer>

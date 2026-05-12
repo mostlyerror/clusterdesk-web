@@ -51,13 +51,13 @@ function JsonLd({ ticker, payload }: { ticker: string; payload: TickerPageRow["p
     description: `${payload.insider_count} insiders at ${payload.company_name} purchased shares totaling $${payload.total_value_usd.toLocaleString()} within a 5-day window.`,
     provider: { "@type": "Organization", name: "ClusterDesk", url: "https://clusterdesk.io" },
   };
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }
+
+const label: React.CSSProperties = {
+  fontSize: 11, fontWeight: 600, letterSpacing: "0.14em",
+  textTransform: "uppercase", color: "#9A9A9A",
+};
 
 export default async function TickerPage({ params }: Props) {
   const { ticker } = await params;
@@ -70,96 +70,92 @@ export default async function TickerPage({ params }: Props) {
   return (
     <>
       <JsonLd ticker={upper} payload={latest.payload} />
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-1">
-            <span className="text-[#22C55E]">${upper}</span> — {latest.payload.company_name}
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px" }}>
+
+        {/* Header */}
+        <div style={{ padding: "48px 0 32px", borderBottom: "1px solid #1A1A1A" }}>
+          <div style={{ ...label, color: "#2D6A4F", marginBottom: 12 }}>Cluster buy alert</div>
+          <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 40, letterSpacing: "-0.02em", color: "#1A1A1A", lineHeight: 1.1, marginBottom: 4 }}>
+            {latest.payload.company_name}
           </h1>
-          <p className="text-[#787878]">
-            Market cap: ${Math.round(latest.payload.market_cap_usd / 1_000_000)}M
-          </p>
-        </div>
-
-        {/* What is a cluster buy */}
-        <div className="mb-10 border border-[#1a1a1a] rounded-lg p-5 bg-[#0a0a0a]">
-          <p className="text-sm text-[#ccc] leading-relaxed">
-            A <strong className="text-white">cluster buy</strong> happens when two or more company
-            insiders — executives, directors, or major shareholders — purchase stock{" "}
-            <strong className="text-white">independently within a short window</strong>. Unlike a
-            single insider trade, a cluster signals broad conviction: multiple people with direct
-            knowledge of the business are all betting their own money at the same time.
-          </p>
-          <p className="text-sm text-[#787878] mt-3 leading-relaxed">
-            The <strong className="text-[#ccc]">score (0–100)</strong> weighs the number of buyers,
-            total dollars invested, the insiders&apos; seniority, how tight the buying window was,
-            and company size. Higher scores indicate stronger, more concentrated conviction.
-          </p>
-        </div>
-
-        <div className="mb-10">
-          <h2 className="text-lg font-semibold mb-4">Latest cluster</h2>
-          <ClusterCard cluster={latest.payload} publishedAt={latest.published_at} />
-        </div>
-
-        {/* Filings table */}
-        <div className="mb-10">
-          <h2 className="text-lg font-semibold mb-4">Insider transactions</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-[#787878] border-b border-[#222]">
-                  <th className="text-left py-2 pr-4">Insider</th>
-                  <th className="text-left py-2 pr-4">Title</th>
-                  <th className="text-left py-2 pr-4">Date</th>
-                  <th className="text-right py-2">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {latest.payload.filings.map((f, i) => (
-                  <tr key={i} className="border-b border-[#1a1a1a]">
-                    <td className="py-3 pr-4">{f.insider_name}</td>
-                    <td className="py-3 pr-4 text-[#787878]">
-                      {f.insider_title.toLowerCase() === "see remarks" ? (
-                        <a
-                          href={f.filing_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#555] hover:text-[#787878] underline underline-offset-2"
-                        >
-                          See SEC filing ↗
-                        </a>
-                      ) : (
-                        f.insider_title
-                      )}
-                    </td>
-                    <td className="py-3 pr-4 text-[#787878]">{f.trade_date}</td>
-                    <td className="py-3 text-right text-[#22C55E]">
-                      ${f.trade_value_usd.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div style={{ display: "flex", gap: 16, alignItems: "baseline" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", color: "#9A9A9A" }}>${upper}</span>
+            <span style={{ fontSize: 13, color: "#C0C0C0" }}>Market cap: ${Math.round(latest.payload.market_cap_usd / 1_000_000)}M</span>
           </div>
         </div>
 
+        {/* What is a cluster buy */}
+        <div style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: 40 }}>
+            <p style={label}>About this signal</p>
+            <div>
+              <p style={{ fontSize: 14, color: "#4A4A4A", lineHeight: 1.7, marginBottom: 8 }}>
+                A <strong style={{ color: "#1A1A1A" }}>cluster buy</strong> happens when two or more company insiders — executives, directors, or major shareholders — purchase stock{" "}
+                <strong style={{ color: "#1A1A1A" }}>independently within a short window</strong>. Unlike a single trade, a cluster signals broad internal conviction from people with direct knowledge of the business.
+              </p>
+              <p style={{ fontSize: 12, color: "#9A9A9A", lineHeight: 1.6 }}>
+                The <strong style={{ color: "#6A6A6A" }}>conviction score (0–100)</strong> weighs the number of buyers, total dollars invested, insider seniority, timing tightness, and company size. Higher scores indicate stronger, more concentrated conviction.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Latest cluster */}
+        <div style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4" }}>
+          <p style={{ ...label, marginBottom: 20 }}>Latest cluster</p>
+          <ClusterCard cluster={latest.payload} publishedAt={latest.published_at} featured />
+        </div>
+
+        {/* Insider transactions */}
+        <div style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4" }}>
+          <p style={{ ...label, marginBottom: 24 }}>Individual transactions</p>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #1A1A1A" }}>
+                {["Insider", "Title", "Date", "Value"].map((h, i) => (
+                  <th key={h} style={{ ...label, textAlign: i === 3 ? "right" : "left", paddingBottom: 12, fontWeight: 600 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {latest.payload.filings.map((f, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid #F0F0EC" }}>
+                  <td style={{ padding: "16px 0", fontSize: 14, color: "#1A1A1A", fontWeight: 500, paddingRight: 24 }}>{f.insider_name}</td>
+                  <td style={{ padding: "16px 0", fontSize: 13, color: "#9A9A9A", paddingRight: 24 }}>
+                    {f.insider_title.toLowerCase() === "see remarks" ? (
+                      <a href={f.filing_url} target="_blank" rel="noopener noreferrer" style={{ color: "#2D6A4F", textDecoration: "none" }}>
+                        See SEC filing ↗
+                      </a>
+                    ) : f.insider_title}
+                  </td>
+                  <td style={{ padding: "16px 0", fontSize: 13, color: "#9A9A9A", paddingRight: 24 }}>{f.trade_date}</td>
+                  <td style={{ padding: "16px 0", fontSize: 14, fontWeight: 600, color: "#2D6A4F", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
+                    ${f.trade_value_usd.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
         {/* Email capture */}
-        <div className="mb-10 border border-[#222222] rounded-lg p-6">
-          <p className="text-sm text-[#787878] mb-3">Get alerted when new cluster buys hit</p>
+        <div style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4" }}>
+          <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 22, color: "#1A1A1A", marginBottom: 6 }}>
+            Get alerted when the next cluster buy hits.
+          </p>
+          <p style={{ fontSize: 13, fontWeight: 300, color: "#9A9A9A", marginBottom: 24 }}>Free. Unsubscribe anytime.</p>
           <EmailCapture source="ticker" />
         </div>
 
         {/* History */}
         {history.length > 1 && (
-          <div>
-            <h2 className="text-lg font-semibold mb-4">History</h2>
-            <div className="grid gap-3">
-              {history.slice(1).map((row) => (
-                <ClusterCard
-                  key={row.cluster_date}
-                  cluster={row.payload}
-                  publishedAt={row.published_at}
-                />
+          <div style={{ padding: "40px 0" }}>
+            <p style={{ ...label, marginBottom: 24 }}>Prior clusters</p>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {history.slice(1).map((row, i) => (
+                <div key={row.cluster_date} style={{ borderBottom: i < history.length - 2 ? "1px solid #F0F0EC" : "none" }}>
+                  <ClusterCard cluster={row.payload} publishedAt={row.published_at} />
+                </div>
               ))}
             </div>
           </div>

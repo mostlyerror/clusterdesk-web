@@ -1,10 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Serif_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const serif = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "ClusterDesk — Daily Insider Cluster Buy Alerts",
@@ -22,8 +35,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body className="bg-[#0A0A0A] text-white min-h-screen">
+    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+      <body className="min-h-screen">
         <NavBar />
         <main>{children}</main>
         <Footer />

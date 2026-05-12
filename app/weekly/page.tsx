@@ -26,25 +26,30 @@ export default async function WeeklyPage() {
     .gte("published_at", monday.toISOString())
     .order("score", { ascending: false }) as { data: TickerPageRow[] | null };
 
+  const weekLabel = monday.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-2">This week&apos;s cluster buys</h1>
-      <p className="text-[#787878] mb-8">
-        Week of {monday.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}
-      </p>
-      {clusters && clusters.length > 0 ? (
-        <div className="grid gap-4">
-          {clusters.map((row) => (
-            <ClusterCard
-              key={`${row.ticker}-${row.cluster_date}`}
-              cluster={row.payload}
-              publishedAt={row.published_at}
-            />
-          ))}
-        </div>
-      ) : (
-        <p className="text-[#787878]">No cluster buys published this week yet. Check back tomorrow.</p>
-      )}
+    <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 32px" }}>
+      <div style={{ padding: "48px 0 32px", borderBottom: "1px solid #1A1A1A" }}>
+        <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2D6A4F", marginBottom: 12 }}>Weekly digest</p>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 40, letterSpacing: "-0.02em", color: "#1A1A1A", lineHeight: 1.1, marginBottom: 4 }}>
+          This week&apos;s cluster buys.
+        </h1>
+        <p style={{ fontSize: 13, color: "#9A9A9A" }}>Week of {weekLabel}</p>
+      </div>
+      <div style={{ padding: "40px 0" }}>
+        {clusters && clusters.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {clusters.map((row, i) => (
+              <div key={`${row.ticker}-${row.cluster_date}`} style={{ borderBottom: i < clusters.length - 1 ? "1px solid #F0F0EC" : "none" }}>
+                <ClusterCard cluster={row.payload} publishedAt={row.published_at} featured={i === 0} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ fontSize: 14, color: "#9A9A9A", fontWeight: 300 }}>No cluster buys published this week yet. Check back tomorrow.</p>
+        )}
+      </div>
     </div>
   );
 }

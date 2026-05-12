@@ -3,3 +3,10 @@
 html {
   font-size: 17px;
 }
+
+body {
+  background: #FAFAF8;
+  color: #1A1A1A;
+  font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+}

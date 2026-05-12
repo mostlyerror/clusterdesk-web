@@ -4,45 +4,41 @@ import type { ClusterPayload } from "@/lib/types";
 interface Props {
   cluster: ClusterPayload;
   publishedAt?: string;
+  featured?: boolean;
 }
 
 function scoreLabel(score: number): { word: string; color: string } {
-  if (score >= 80) return { word: "Very strong", color: "#22C55E" };
-  if (score >= 60) return { word: "Strong", color: "#86efac" };
-  if (score >= 40) return { word: "Moderate", color: "#f59e0b" };
-  return { word: "Weak", color: "#787878" };
+  if (score >= 80) return { word: "Very strong", color: "#2D6A4F" };
+  if (score >= 60) return { word: "Strong", color: "#3D8B65" };
+  if (score >= 40) return { word: "Moderate", color: "#D97706" };
+  return { word: "Weak", color: "#9A9A9A" };
 }
 
 function ScoreRing({ score, color }: { score: number; color: string }) {
-  const r = 20;
+  const r = 22;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - score / 100);
   return (
-    <div style={{ position: "relative", width: 52, height: 52, flexShrink: 0 }}>
-      <svg width={52} height={52} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={26} cy={26} r={r} fill="none" stroke="#1a1a1a" strokeWidth={3} />
+    <div style={{ position: "relative", width: 58, height: 58, flexShrink: 0 }}>
+      <svg width={58} height={58} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={29} cy={29} r={r} fill="none" stroke="#E8E8E4" strokeWidth={3} />
         <circle
-          cx={26} cy={26} r={r} fill="none"
+          cx={29} cy={29} r={r} fill="none"
           stroke={color} strokeWidth={3}
           strokeDasharray={circ}
           strokeDashoffset={offset}
           strokeLinecap="round"
         />
       </svg>
-      <div style={{
-        position: "absolute", inset: 0,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        gap: 1,
-      }}>
-        <span style={{ color, fontSize: 13, fontWeight: 700, lineHeight: 1 }}>{score}</span>
-        <span style={{ color: "#444", fontSize: 9, lineHeight: 1 }}>/100</span>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
+        <span style={{ color, fontSize: 14, fontWeight: 600, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{score}</span>
+        <span style={{ color: "#C0C0C0", fontSize: 9, lineHeight: 1 }}>/100</span>
       </div>
     </div>
   );
 }
 
-export function ClusterCard({ cluster, publishedAt }: Props) {
+export function ClusterCard({ cluster, publishedAt, featured }: Props) {
   const mcapM = Math.round(cluster.market_cap_usd / 1_000_000);
   const totalK = Math.round(cluster.total_value_usd / 1_000);
   const { word, color } = scoreLabel(cluster.score);
@@ -50,44 +46,51 @@ export function ClusterCard({ cluster, publishedAt }: Props) {
   return (
     <Link
       href={`/buys/${cluster.ticker}`}
-      className="block bg-[#111111] border border-[#222222] rounded-lg p-5 hover:border-[#22C55E] transition-colors"
+      style={{
+        display: "block",
+        background: "#FFFFFF",
+        border: "1px solid #E8E8E4",
+        borderLeft: featured ? "3px solid #2D6A4F" : "1px solid #E8E8E4",
+        padding: "28px 32px",
+        textDecoration: "none",
+        transition: "border-color 0.15s, box-shadow 0.15s",
+      }}
+      className="cluster-card"
     >
-      <div className="flex items-start justify-between mb-3 gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-[#22C55E] font-bold text-lg">${cluster.ticker}</span>
-            <span className="text-[#787878] text-sm truncate">{cluster.company_name}</span>
+      <style>{`.cluster-card:hover { border-color: #2D6A4F !important; box-shadow: 0 2px 16px rgba(45,106,79,0.08); }`}</style>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24, marginBottom: 20 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
+            <span style={{ fontFamily: "var(--font-serif)", fontSize: 26, letterSpacing: "-0.01em", color: "#1A1A1A", lineHeight: 1 }}>
+              {cluster.ticker}
+            </span>
+            <span style={{ fontSize: 13, color: "#9A9A9A", fontWeight: 400 }}>{cluster.company_name}</span>
           </div>
-          <div className="text-[#ccc] text-sm leading-snug">
-            {cluster.insider_count} company insider{cluster.insider_count !== 1 ? "s" : ""} bought{" "}
-            <span className="text-white font-medium">${totalK}K</span> combined in a{" "}
-            {cluster.insider_count > 2 ? "tight" : "coordinated"} window.{" "}
-            <span className="text-[#555]">Market cap: ${mcapM}M.</span>
-          </div>
+          <p style={{ fontSize: 14, color: "#4A4A4A", lineHeight: 1.55, marginBottom: 0 }}>
+            {cluster.insider_count} insider{cluster.insider_count !== 1 ? "s" : ""} bought{" "}
+            <strong style={{ color: "#1A1A1A", fontWeight: 600 }}>${totalK}K</strong> combined
+            in a {cluster.insider_count > 2 ? "tight" : "coordinated"} window.{" "}
+            <span style={{ color: "#9A9A9A" }}>Market cap: ${mcapM}M.</span>
+          </p>
         </div>
-        <div className="text-center flex-shrink-0">
+        <div style={{ textAlign: "center", flexShrink: 0 }}>
           <ScoreRing score={cluster.score} color={color} />
-          <div className="text-xs font-medium mt-1" style={{ color }}>{word}</div>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color, marginTop: 4 }}>{word}</div>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2 items-center">
-        <span className="text-xs text-[#555] mr-1">Who bought:</span>
+      <div style={{ borderTop: "1px solid #F0F0EC", paddingTop: 16, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+        <span style={{ fontSize: 11, color: "#9A9A9A", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginRight: 4 }}>Buyers</span>
         {[...new Set(cluster.roles)].map((role) => (
-          <span
-            key={role}
-            className="text-xs bg-[#0f2818] text-[#22C55E] border border-[#1a4a2a] rounded px-2 py-0.5"
-          >
+          <span key={role} style={{ fontSize: 11, background: "#EEF5F1", color: "#2D6A4F", fontWeight: 600, padding: "3px 8px", letterSpacing: "0.02em" }}>
             {role}
           </span>
         ))}
+        {publishedAt && (
+          <span style={{ fontSize: 11, color: "#C0C0C0", marginLeft: "auto" }}>
+            {new Date(publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+          </span>
+        )}
       </div>
-      {publishedAt && (
-        <div className="text-[#787878] text-xs mt-3">
-          {new Date(publishedAt).toLocaleDateString("en-US", {
-            month: "short", day: "numeric", year: "numeric",
-          })}
-        </div>
-      )}
     </Link>
   );
 }
