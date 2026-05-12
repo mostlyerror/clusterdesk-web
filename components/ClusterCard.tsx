@@ -6,9 +6,17 @@ interface Props {
   publishedAt?: string;
 }
 
+function scoreLabel(score: number): { word: string; color: string } {
+  if (score >= 80) return { word: "Very strong", color: "#22C55E" };
+  if (score >= 60) return { word: "Strong", color: "#86efac" };
+  if (score >= 40) return { word: "Moderate", color: "#f59e0b" };
+  return { word: "Weak", color: "#787878" };
+}
+
 export function ClusterCard({ cluster, publishedAt }: Props) {
   const mcapM = Math.round(cluster.market_cap_usd / 1_000_000);
   const totalK = Math.round(cluster.total_value_usd / 1_000);
+  const { word, color } = scoreLabel(cluster.score);
 
   return (
     <Link
@@ -20,9 +28,14 @@ export function ClusterCard({ cluster, publishedAt }: Props) {
           <span className="text-[#22C55E] font-bold text-lg">${cluster.ticker}</span>
           <span className="text-[#787878] text-sm ml-2">{cluster.company_name}</span>
         </div>
-        <span className="text-white font-semibold text-sm bg-[#1a1a1a] border border-[#333] rounded px-2 py-1">
-          {cluster.score}/100
-        </span>
+        <div className="text-right">
+          <div className="text-xs text-[#555] mb-0.5">Conviction score</div>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-bold text-base" style={{ color }}>{cluster.score}</span>
+            <span className="text-[#444] text-xs">/100</span>
+            <span className="text-xs font-medium" style={{ color }}>{word}</span>
+          </div>
+        </div>
       </div>
       <div className="text-[#ccc] text-sm mb-3">
         {cluster.insider_count} company insider{cluster.insider_count !== 1 ? "s" : ""} bought{" "}
