@@ -871,7 +871,7 @@ export default function AdminControls(props: DashboardProProps) {
       <main style={{ flex: 1, overflowY: "auto", display: "flex" }}>
         {active === "Overview" ? (
           <>
-            <div style={{ flex: 1, minWidth: 0, padding: "40px 48px", maxWidth: "680px" }}>
+            <div style={{ flex: 1, minWidth: 0, padding: "40px 48px" }}>
               <OverviewSection
                 totalSubscribers={props.totalSubscribers}
                 subsThisWeek={props.subsThisWeek}
@@ -884,10 +884,10 @@ export default function AdminControls(props: DashboardProProps) {
             </div>
             <div
               style={{
-                width: "320px",
+                width: "240px",
                 flexShrink: 0,
                 borderLeft: "1px solid #1a1a1a",
-                padding: "40px 28px",
+                padding: "40px 20px",
                 overflowY: "auto",
                 position: "sticky",
                 top: 0,
