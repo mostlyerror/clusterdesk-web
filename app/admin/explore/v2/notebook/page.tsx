@@ -112,7 +112,7 @@ async function getData() {
       )
     : 999;
 
-  const pipelineStatus =
+  const pipelineStatus: "healthy" | "warning" | "unknown" =
     daysSinceLastPublish <= 1
       ? "healthy"
       : daysSinceLastPublish <= 5
