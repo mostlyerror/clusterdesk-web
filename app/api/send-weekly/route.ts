@@ -8,6 +8,12 @@ interface ClusterPayload {
   ticker: string;
   company_name: string;
   score: number;
+  insider_count?: number;
+  total_value_usd?: number;
+  market_cap_usd?: number;
+  cluster_start_date?: string;
+  cluster_end_date?: string;
+  roles?: string[];
 }
 
 function verifySecret(provided: string): boolean {
@@ -64,7 +70,7 @@ export async function POST(req: NextRequest) {
       await resend.emails.send({
         from: "ClusterDesk <hey@clusterdesk.io>",
         to: email,
-        subject: `This week's insider cluster buys — ${weekOf}`,
+        subject: `Friday's top insider cluster buys — ${weekOf}`,
         react: WeeklyDigestEmail({ clusters, weekOf }),
       });
       sent++;

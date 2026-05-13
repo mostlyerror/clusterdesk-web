@@ -86,14 +86,14 @@ export default async function TickerPage({ params }: Props) {
 
         {/* What is a cluster buy */}
         <div style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: 40 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: 48 }}>
             <p style={label}>About this signal</p>
             <div>
-              <p style={{ fontSize: 14, color: "#4A4A4A", lineHeight: 1.7, marginBottom: 8 }}>
+              <p style={{ fontSize: 15, color: "#4A4A4A", lineHeight: 1.7, marginBottom: 8, maxWidth: 560 }}>
                 A <strong style={{ color: "#1A1A1A" }}>cluster buy</strong> happens when two or more company insiders — executives, directors, or major shareholders — purchase stock{" "}
                 <strong style={{ color: "#1A1A1A" }}>independently within a short window</strong>. Unlike a single trade, a cluster signals broad internal conviction from people with direct knowledge of the business.
               </p>
-              <p style={{ fontSize: 12, color: "#9A9A9A", lineHeight: 1.6 }}>
+              <p style={{ fontSize: 13, color: "#9A9A9A", lineHeight: 1.6, maxWidth: 560 }}>
                 The <strong style={{ color: "#6A6A6A" }}>conviction score (0–100)</strong> weighs the number of buyers, total dollars invested, insider seniority, timing tightness, and company size. Higher scores indicate stronger, more concentrated conviction.
               </p>
             </div>
@@ -141,10 +141,10 @@ export default async function TickerPage({ params }: Props) {
         {/* Email capture */}
         <div style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4" }}>
           <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 22, color: "#1A1A1A", marginBottom: 6 }}>
-            Get alerted when the next cluster buy hits.
+            Get the top cluster buys every Friday before market open.
           </p>
-          <p style={{ fontSize: 13, fontWeight: 300, color: "#9A9A9A", marginBottom: 24 }}>Free. Unsubscribe anytime.</p>
-          <EmailCapture source="ticker" />
+          <p style={{ fontSize: 13, fontWeight: 300, color: "#9A9A9A", marginBottom: 24 }}>Free weekly digest with the strongest insider-buy signals and filing breakdowns.</p>
+          <EmailCapture source="ticker" ticker={upper} variant="ticker-page-cta" />
         </div>
 
         {/* History */}

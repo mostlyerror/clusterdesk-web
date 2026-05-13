@@ -20,9 +20,9 @@ const sans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "ClusterDesk — Daily Insider Cluster Buy Alerts",
+  title: "ClusterDesk — Weekly Insider Cluster Buy Digest",
   description:
-    "Free daily alerts on insider cluster buys in micro-cap stocks. When multiple insiders buy at the same company within days, we tell you.",
+    "Get the top insider cluster buys every Friday before market open. Built from SEC Form 4 filings in micro-cap stocks.",
   openGraph: {
     siteName: "ClusterDesk",
     type: "website",

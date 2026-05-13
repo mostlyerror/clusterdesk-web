@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "email": "npx react-email dev --dir emails",
+    "prebuild": "node --env-file-if-exists=.env.local scripts/preflight-db.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

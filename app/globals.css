@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 html {
-  font-size: 19px;
+  font-size: 16px;
 }
 
 body {
@@ -9,4 +9,13 @@ body {
   color: #1A1A1A;
   font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
+}
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+.cluster-card:hover {
+  border-color: #2D6A4F !important;
+  box-shadow: 0 2px 16px rgba(45, 106, 79, 0.08);
 }

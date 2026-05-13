@@ -7,6 +7,11 @@ import {
   revalidateAllTickerPages,
   type ActionResult,
 } from "./actions";
+import type {
+  DistributionMetrics,
+  GrowthMetric,
+  SourceMetric,
+} from "@/lib/admin-metrics";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -30,14 +35,19 @@ export interface DashboardProProps {
   pipelineStatus: "NOMINAL" | "DEGRADED" | "DOWN" | "UNKNOWN";
   activity: ActivityEvent[];
   checklist: ChecklistItem[];
+  sourceBreakdown: SourceMetric[];
+  growth: GrowthMetric;
+  distribution: DistributionMetrics;
+  learningQuestions: string[];
 }
 
 // ─── Nav config ─────────────────────────────────────────────────────────────
 
-type NavSection = "Overview" | "Checklist" | "Actions" | "Systems";
+type NavSection = "Overview" | "Growth" | "Checklist" | "Actions" | "Systems";
 
 const NAV_ITEMS: { id: NavSection; symbol: string }[] = [
   { id: "Overview", symbol: "◉" },
+  { id: "Growth", symbol: "↗" },
   { id: "Checklist", symbol: "✓" },
   { id: "Actions", symbol: "⚙" },
   { id: "Systems", symbol: "⬡" },
@@ -81,19 +91,39 @@ const SERVICES = [
   },
 ];
 
+const C = {
+  bg: "#FAFAF8",
+  panel: "#FFFFFF",
+  ink: "#1A1A1A",
+  body: "#4A4A4A",
+  muted: "#9A9A9A",
+  faint: "#F0F0EC",
+  line: "#E8E8E4",
+  green: "#2D6A4F",
+  greenSoft: "#EEF5F1",
+  warn: "#D97706",
+  red: "#B42318",
+};
+
+const LABEL: React.CSSProperties = {
+  fontSize: "11px",
+  fontWeight: 600,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: C.muted,
+};
+
 // ─── Shared UI primitives ────────────────────────────────────────────────────
 
 function Callout({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        borderLeft: "3px solid #22C55E",
-        background: "#0f1a14",
-        padding: "12px 16px",
-        borderRadius: "0 6px 6px 0",
-        color: "#787878",
+        borderLeft: `3px solid ${C.green}`,
+        background: C.greenSoft,
+        padding: "14px 18px",
+        color: C.body,
         fontSize: "13px",
-        fontStyle: "italic",
         lineHeight: "1.6",
       }}
     >
@@ -118,28 +148,31 @@ function StatCard({
   return (
     <div
       style={{
-        border: "1px solid #222",
-        borderRadius: "8px",
-        padding: "20px 24px",
-        background: "#0f0f0f",
+        border: `1px solid ${C.line}`,
+        padding: "22px 24px",
+        background: C.panel,
+        minHeight: 116,
       }}
     >
       <p
-        style={{
-          color: "#787878",
-          fontSize: "11px",
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          marginBottom: "8px",
-        }}
+        style={{ ...LABEL, marginBottom: "10px" }}
       >
         {label}
       </p>
-      <p style={{ fontSize: "28px", fontWeight: 700, color: accent ?? "#fff", lineHeight: 1 }}>
+      <p
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontSize: "34px",
+          fontWeight: 400,
+          color: accent ?? C.ink,
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+        }}
+      >
         {value}
       </p>
       {sub && (
-        <p style={{ color: subAccent ?? "#555", fontSize: "12px", marginTop: "6px" }}>{sub}</p>
+        <p style={{ color: subAccent ?? C.muted, fontSize: "12px", marginTop: "8px", lineHeight: 1.4 }}>{sub}</p>
       )}
     </div>
   );
@@ -147,9 +180,22 @@ function StatCard({
 
 function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
-    <div style={{ marginBottom: "24px" }}>
-      <h2 style={{ fontSize: "20px", fontWeight: 700, marginBottom: sub ? "4px" : 0 }}>{title}</h2>
-      {sub && <p style={{ color: "#787878", fontSize: "14px" }}>{sub}</p>}
+    <div style={{ marginBottom: "24px", borderBottom: `1px solid ${C.ink}`, paddingBottom: "18px" }}>
+      <p style={{ ...LABEL, color: C.green, marginBottom: "8px" }}>Operator desk</p>
+      <h2
+        style={{
+          fontFamily: "var(--font-serif)",
+          fontSize: "40px",
+          fontWeight: 400,
+          letterSpacing: "-0.02em",
+          lineHeight: 1,
+          color: C.ink,
+          marginBottom: sub ? "8px" : 0,
+        }}
+      >
+        {title}
+      </h2>
+      {sub && <p style={{ color: C.body, fontSize: "14px", lineHeight: 1.6 }}>{sub}</p>}
     </div>
   );
 }
@@ -165,9 +211,9 @@ function ActionButton({
   variant?: "default" | "danger" | "primary";
   disabled?: boolean;
 }) {
-  const bg = variant === "danger" ? "#2a0f0f" : variant === "primary" ? "#0f2a1a" : "#161616";
-  const border = variant === "danger" ? "#5a1a1a" : variant === "primary" ? "#1a4a2a" : "#2a2a2a";
-  const color = variant === "danger" ? "#f87171" : variant === "primary" ? "#22C55E" : "#ccc";
+  const bg = variant === "danger" ? "#FEE2E2" : variant === "primary" ? C.green : C.panel;
+  const border = variant === "danger" ? "#FCA5A5" : variant === "primary" ? C.green : C.line;
+  const color = variant === "danger" ? C.red : variant === "primary" ? "#FFFFFF" : C.ink;
 
   return (
     <button
@@ -176,14 +222,15 @@ function ActionButton({
       style={{
         background: bg,
         border: `1px solid ${border}`,
-        color: disabled ? "#444" : color,
-        padding: "8px 18px",
-        borderRadius: "6px",
-        fontSize: "13px",
+        color: disabled ? C.muted : color,
+        padding: "9px 18px",
+        fontSize: "12px",
         fontWeight: 600,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
         cursor: disabled ? "not-allowed" : "pointer",
-        transition: "opacity 0.15s",
         whiteSpace: "nowrap",
+        fontFamily: "var(--font-sans, system-ui, sans-serif)",
       }}
     >
       {children}
@@ -197,11 +244,10 @@ function ResultBadge({ result }: { result: ActionResult | null }) {
     <span
       style={{
         fontSize: "12px",
-        color: result.ok ? "#22C55E" : "#f87171",
-        padding: "4px 10px",
-        background: result.ok ? "#0a1f12" : "#1f0a0a",
-        border: `1px solid ${result.ok ? "#1a3a22" : "#3a1a1a"}`,
-        borderRadius: "4px",
+        color: result.ok ? C.green : C.red,
+        padding: "5px 10px",
+        background: result.ok ? C.greenSoft : "#FEE2E2",
+        border: `1px solid ${result.ok ? "#CFE3D6" : "#FCA5A5"}`,
       }}
     >
       {result.ok ? result.message : result.error}
@@ -220,6 +266,7 @@ function OverviewSection({
   lastPublishedAt,
   pipelineStatus,
   checklist,
+  distribution,
 }: Pick<
   DashboardProProps,
   | "totalSubscribers"
@@ -230,6 +277,7 @@ function OverviewSection({
   | "lastPublishedAt"
   | "pipelineStatus"
   | "checklist"
+  | "distribution"
 >) {
   const statusColor =
     pipelineStatus === "NOMINAL"
@@ -290,6 +338,16 @@ function OverviewSection({
           sub={lastPubLabel}
           accent={statusColor}
         />
+        <StatCard
+          label="X post rate"
+          value={`${Math.round(distribution.xPostRate * 100)}%`}
+          sub={
+            distribution.missingXPosts > 0
+              ? `${distribution.missingXPosts} published cluster${distribution.missingXPosts === 1 ? "" : "s"} missing X`
+              : "All published clusters posted"
+          }
+          accent={distribution.missingXPosts > 0 ? "#f59e0b" : "#22C55E"}
+        />
       </div>
 
       <div style={{ marginTop: "32px" }}>
@@ -337,6 +395,162 @@ function OverviewSection({
         <p style={{ color: "#444", fontSize: "12px", marginTop: "8px" }}>
           {checksPassed}/{checklist.length} checks passing — go to Checklist section for details.
         </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Section: Growth ────────────────────────────────────────────────────────
+
+function GrowthSection({
+  sourceBreakdown,
+  growth,
+  distribution,
+  learningQuestions,
+}: Pick<
+  DashboardProProps,
+  "sourceBreakdown" | "growth" | "distribution" | "learningQuestions"
+>) {
+  const deltaLabel =
+    growth.delta > 0
+      ? `+${growth.delta}`
+      : growth.delta < 0
+      ? String(growth.delta)
+      : "flat";
+  const pctLabel =
+    growth.deltaPct === null
+      ? "new baseline"
+      : `${growth.deltaPct >= 0 ? "+" : ""}${Math.round(growth.deltaPct * 100)}%`;
+
+  return (
+    <div>
+      <SectionHeader
+        title="Growth"
+        sub="Subscriber acquisition and distribution metrics for the current alert loop."
+      />
+
+      <Callout>
+        Use this section to decide what to test next. Every new offer, page, post format, and email
+        variant should either improve one of these metrics or teach us why it did not.
+      </Callout>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          gap: "16px",
+          marginTop: "28px",
+        }}
+      >
+        <StatCard
+          label="7-day subscriber delta"
+          value={deltaLabel}
+          sub={`${growth.current} this week vs ${growth.previous} prior · ${pctLabel}`}
+          accent={growth.delta >= 0 ? "#22C55E" : "#ef4444"}
+        />
+        <StatCard
+          label="Published to X"
+          value={`${distribution.postedToX}/${distribution.publishedClusters}`}
+          sub={`${Math.round(distribution.xPostRate * 100)}% distribution coverage`}
+          accent={distribution.xPostRate >= 0.8 ? "#22C55E" : "#f59e0b"}
+        />
+        <StatCard
+          label="High-score gaps"
+          value={distribution.highScoreMissingX.length}
+          sub={
+            distribution.highScoreMissingX.length
+              ? distribution.highScoreMissingX.join(", ")
+              : "No high-score clusters missing X"
+          }
+          accent={distribution.highScoreMissingX.length ? "#f59e0b" : "#22C55E"}
+        />
+      </div>
+
+      <div style={{ marginTop: "32px" }}>
+        <h3
+          style={{
+            fontSize: "13px",
+            fontWeight: 600,
+            color: "#555",
+            marginBottom: "12px",
+            textTransform: "uppercase",
+            letterSpacing: "0.07em",
+          }}
+        >
+          Subscriber Source Breakdown
+        </h3>
+        <div style={{ border: "1px solid #222", borderRadius: "8px", overflow: "hidden" }}>
+          {sourceBreakdown.length === 0 ? (
+            <div style={{ padding: "24px", color: "#555", fontSize: "13px" }}>
+              No subscriber source data yet.
+            </div>
+          ) : (
+            sourceBreakdown.map((source, i) => (
+              <div
+                key={source.source}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "140px 1fr 72px",
+                  gap: "16px",
+                  alignItems: "center",
+                  padding: "12px 16px",
+                  borderBottom: i < sourceBreakdown.length - 1 ? "1px solid #1a1a1a" : "none",
+                  background: i % 2 === 0 ? "#0f0f0f" : "#0b0b0b",
+                }}
+              >
+                <span style={{ color: "#ccc", fontSize: "13px", fontFamily: "monospace" }}>
+                  {source.source}
+                </span>
+                <div style={{ height: "6px", background: "#1a1a1a", borderRadius: "999px" }}>
+                  <div
+                    style={{
+                      width: `${Math.max(2, Math.round(source.share * 100))}%`,
+                      height: "100%",
+                      background: "#22C55E",
+                      borderRadius: "999px",
+                    }}
+                  />
+                </div>
+                <span style={{ color: "#787878", fontSize: "12px", textAlign: "right" }}>
+                  {source.count} · {Math.round(source.share * 100)}%
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div style={{ marginTop: "32px" }}>
+        <h3
+          style={{
+            fontSize: "13px",
+            fontWeight: 600,
+            color: "#555",
+            marginBottom: "12px",
+            textTransform: "uppercase",
+            letterSpacing: "0.07em",
+          }}
+        >
+          Questions This Data Should Answer
+        </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {learningQuestions.map((question) => (
+            <div
+              key={question}
+              style={{
+                border: "1px solid #222",
+                borderRadius: "8px",
+                padding: "14px 16px",
+                background: "#0f0f0f",
+                color: "#aaa",
+                fontSize: "13px",
+                lineHeight: "1.5",
+              }}
+            >
+              {question}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -891,6 +1105,7 @@ export default function AdminControls(props: DashboardProProps) {
                 lastPublishedAt={props.lastPublishedAt}
                 pipelineStatus={props.pipelineStatus}
                 checklist={props.checklist}
+                distribution={props.distribution}
               />
             </div>
             <div
@@ -910,6 +1125,14 @@ export default function AdminControls(props: DashboardProProps) {
           </>
         ) : (
           <div style={{ maxWidth: "720px", padding: "40px 48px" }}>
+            {active === "Growth" && (
+              <GrowthSection
+                sourceBreakdown={props.sourceBreakdown}
+                growth={props.growth}
+                distribution={props.distribution}
+                learningQuestions={props.learningQuestions}
+              />
+            )}
             {active === "Checklist" && <ChecklistSection checklist={props.checklist} />}
             {active === "Actions" && <ActionsSection />}
             {active === "Systems" && <SystemsSection />}

@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { ClusterCard } from "@/components/ClusterCard";
+import { EmailCapture } from "@/components/EmailCapture";
 import type { Metadata } from "next";
 import type { TickerPageRow } from "@/lib/types";
 
@@ -7,7 +8,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Weekly Cluster Buy Digest | ClusterDesk",
-  description: "This week's top insider cluster buys in micro-cap stocks.",
+  description: "The top insider cluster buys every Friday before market open.",
 };
 
 export default async function WeeklyPage() {
@@ -33,9 +34,16 @@ export default async function WeeklyPage() {
       <div style={{ padding: "48px 0 32px", borderBottom: "1px solid #1A1A1A" }}>
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2D6A4F", marginBottom: 12 }}>Weekly digest</p>
         <h1 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 40, letterSpacing: "-0.02em", color: "#1A1A1A", lineHeight: 1.1, marginBottom: 4 }}>
-          This week&apos;s cluster buys.
+          Friday&apos;s top insider cluster buys.
         </h1>
-        <p style={{ fontSize: 13, color: "#9A9A9A" }}>Week of {weekLabel}</p>
+        <p style={{ fontSize: 13, color: "#9A9A9A" }}>Sent before market open. Week of {weekLabel}.</p>
+      </div>
+      <div style={{ padding: "32px 0", borderBottom: "1px solid #E8E8E4", display: "flex", justifyContent: "space-between", gap: 32, alignItems: "center", flexWrap: "wrap" }}>
+        <div>
+          <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 22, color: "#1A1A1A", marginBottom: 4 }}>Get this digest in your inbox.</p>
+          <p style={{ fontSize: 13, color: "#9A9A9A" }}>Free. The strongest insider-buy signals, once per week.</p>
+        </div>
+        <EmailCapture source="weekly" variant="weekly-page-cta" />
       </div>
       <div style={{ padding: "40px 0" }}>
         {clusters && clusters.length > 0 ? (

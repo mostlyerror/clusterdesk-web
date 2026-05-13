@@ -21,7 +21,8 @@ function ScoreRing({ score, color }: { score: number; color: string }) {
   return (
     <div style={{ position: "relative", width: 58, height: 58, flexShrink: 0 }}>
       <svg width={58} height={58} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={29} cy={29} r={r} fill="none" stroke="#E8E8E4" strokeWidth={3} />
+        <circle cx={29} cy={29} r={29} fill="#1A1A1A" />
+        <circle cx={29} cy={29} r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={3} />
         <circle
           cx={29} cy={29} r={r} fill="none"
           stroke={color} strokeWidth={3}
@@ -30,17 +31,21 @@ function ScoreRing({ score, color }: { score: number; color: string }) {
           strokeLinecap="round"
         />
       </svg>
-      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1 }}>
-        <span style={{ color, fontSize: 14, fontWeight: 600, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{score}</span>
-        <span style={{ color: "#C0C0C0", fontSize: 9, lineHeight: 1 }}>/100</span>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ color: "#FFFFFF", fontSize: 14, fontWeight: 600, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{score}</span>
       </div>
     </div>
   );
 }
 
+function formatValue(usd: number): string {
+  if (usd >= 1_000_000) return `$${(usd / 1_000_000).toFixed(1)}M`;
+  return `$${Math.round(usd / 1_000).toLocaleString()}K`;
+}
+
 export function ClusterCard({ cluster, publishedAt, featured }: Props) {
   const mcapM = Math.round(cluster.market_cap_usd / 1_000_000);
-  const totalK = Math.round(cluster.total_value_usd / 1_000);
+  const totalDisplay = formatValue(cluster.total_value_usd);
   const { word, color } = scoreLabel(cluster.score);
 
   return (
@@ -57,7 +62,6 @@ export function ClusterCard({ cluster, publishedAt, featured }: Props) {
       }}
       className="cluster-card"
     >
-      <style>{`.cluster-card:hover { border-color: #2D6A4F !important; box-shadow: 0 2px 16px rgba(45,106,79,0.08); }`}</style>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24, marginBottom: 20 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
@@ -68,14 +72,14 @@ export function ClusterCard({ cluster, publishedAt, featured }: Props) {
           </div>
           <p style={{ fontSize: 14, color: "#4A4A4A", lineHeight: 1.55, marginBottom: 0 }}>
             {cluster.insider_count} insider{cluster.insider_count !== 1 ? "s" : ""} bought{" "}
-            <strong style={{ color: "#1A1A1A", fontWeight: 600 }}>${totalK}K</strong> combined
+            <strong style={{ color: "#1A1A1A", fontWeight: 600 }}>{totalDisplay}</strong> combined
             in a {cluster.insider_count > 2 ? "tight" : "coordinated"} window.{" "}
             <span style={{ color: "#9A9A9A" }}>Market cap: ${mcapM}M.</span>
           </p>
         </div>
-        <div style={{ textAlign: "center", flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0, width: 80 }}>
           <ScoreRing score={cluster.score} color={color} />
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color, marginTop: 4 }}>{word}</div>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color }}>{word}</div>
         </div>
       </div>
       <div style={{ borderTop: "1px solid #F0F0EC", paddingTop: 16, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>

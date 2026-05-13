@@ -4,9 +4,17 @@ import { useState } from "react";
 
 interface Props {
   source?: string;
+  ticker?: string;
+  campaign?: string;
+  variant?: string;
 }
 
-export function EmailCapture({ source = "landing" }: Props) {
+export function EmailCapture({
+  source = "landing",
+  ticker,
+  campaign = "weekly-friday-before-open",
+  variant = "control",
+}: Props) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -18,7 +26,14 @@ export function EmailCapture({ source = "landing" }: Props) {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source }),
+        body: JSON.stringify({
+          email,
+          source,
+          ticker,
+          campaign,
+          variant,
+          referrer: document.referrer || null,
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -83,7 +98,7 @@ export function EmailCapture({ source = "landing" }: Props) {
           flexShrink: 0,
         }}
       >
-        {status === "loading" ? "Sending…" : "Get alerts"}
+        {status === "loading" ? "Sending…" : "Get Friday digest"}
       </button>
       {status === "error" && (
         <p style={{ color: "#DC2626", fontSize: 12, marginTop: 8, width: "100%" }}>{errorMsg}</p>

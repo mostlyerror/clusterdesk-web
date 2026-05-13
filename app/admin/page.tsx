@@ -1,4 +1,11 @@
 import { createAdminClient } from "@/lib/supabase-server";
+import {
+  calculateGrowth,
+  summarizeDistribution,
+  summarizeSubscriberSources,
+  type ClusterDistributionRow,
+  type SubscriberMetricRow,
+} from "@/lib/admin-metrics";
 import AdminControls, {
   type ActivityEvent,
   type ChecklistItem,
@@ -29,7 +36,17 @@ async function getDashboardData(): Promise<DashboardProProps> {
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const [allSubsRes, newSubsRes, prevSubsRes, totalClustersRes, pendingClustersRes, recentClustersRes, recentSubsRes] = await Promise.all([
+  const [
+    allSubsRes,
+    newSubsRes,
+    prevSubsRes,
+    totalClustersRes,
+    pendingClustersRes,
+    recentClustersRes,
+    recentSubsRes,
+    subscriberMetricsRes,
+    clusterDistributionRes,
+  ] = await Promise.all([
     db.from("email_subscribers").select("*", { count: "exact", head: true }),
     db
       .from("email_subscribers")
@@ -59,6 +76,16 @@ async function getDashboardData(): Promise<DashboardProProps> {
       .select("email,created_at")
       .order("created_at", { ascending: false })
       .limit(30),
+    db
+      .from("email_subscribers")
+      .select("signup_source,created_at")
+      .order("created_at", { ascending: false })
+      .limit(1000),
+    db
+      .from("clusters")
+      .select("ticker,score,published_at,twitter_post_id")
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .limit(250),
   ]);
 
   const totalSubscribers = allSubsRes.count ?? 0;
@@ -69,6 +96,12 @@ async function getDashboardData(): Promise<DashboardProProps> {
   const clusters = (recentClustersRes.data ?? []) as any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const subscribers = (recentSubsRes.data ?? []) as any[];
+  const subscriberMetrics = (subscriberMetricsRes.data ?? []) as SubscriberMetricRow[];
+  const clusterDistribution = (clusterDistributionRes.data ?? []) as ClusterDistributionRow[];
+
+  const sourceBreakdown = summarizeSubscriberSources(subscriberMetrics);
+  const growth = calculateGrowth(subscriberMetrics, now);
+  const distribution = summarizeDistribution(clusterDistribution);
 
   const lastPublishedAt: string | null = clusters[0]?.published_at ?? null;
   const status = computePipelineStatus(lastPublishedAt);
@@ -127,6 +160,16 @@ async function getDashboardData(): Promise<DashboardProProps> {
         : "No clusters published yet. The /buys page will be empty until the pipeline runs.",
     },
     {
+      label: "X distribution connected",
+      pass: distribution.publishedClusters === 0 || distribution.xPostRate >= 0.8,
+      detail:
+        distribution.publishedClusters === 0
+          ? "No published clusters yet, so X distribution cannot be evaluated."
+          : distribution.missingXPosts === 0
+          ? "Every published cluster has an X post ID."
+          : `${distribution.missingXPosts}/${distribution.publishedClusters} published clusters are missing X post IDs. Check worker X credentials, posting window, and rate limits.`,
+    },
+    {
       label: "Email (Resend) configured",
       pass: resendConfigured,
       detail: resendConfigured
@@ -153,6 +196,15 @@ async function getDashboardData(): Promise<DashboardProProps> {
     pipelineStatus: status,
     activity,
     checklist,
+    sourceBreakdown,
+    growth,
+    distribution,
+    learningQuestions: [
+      "Which source converts the most subscribers: homepage, ticker pages, weekly page, or X?",
+      "Do high-score clusters with X posts drive more signups in the next 24 hours?",
+      "Which alert texture earns clicks: insider role, dollar amount, reversal from selling, or multi-insider breadth?",
+      "Does Friday-before-open digest positioning outperform same-day alert positioning?",
+    ],
   };
 }
 

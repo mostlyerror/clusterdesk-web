@@ -34,14 +34,14 @@ function AlertPreview() {
             <span style={{ fontSize: 11, color: "#C0C0C0" }}>now</span>
           </div>
           <p style={{ fontSize: 12, color: "#6A6A6A", lineHeight: 1.4 }}>
-            $MVST cluster buy — 87/100. 3 insiders, $312K in 4 days.
+            Friday digest — $MVST leads this week. 3 insiders, $312K in 4 days.
           </p>
         </div>
       </div>
       {/* Email body */}
       <div style={{ padding: "20px 20px" }}>
         <div style={{ fontSize: 11, color: "#C0C0C0", fontFamily: "monospace", marginBottom: 16 }}>
-          From: alerts@clusterdesk.io &nbsp;·&nbsp; Subject: $MVST — Cluster Buy Alert · Score 87/100
+          From: alerts@clusterdesk.io &nbsp;·&nbsp; Subject: Friday&apos;s top insider cluster buys
         </div>
         <div style={{ border: "1px solid #E8E8E4", padding: "20px 20px" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
@@ -77,7 +77,7 @@ function AlertPreview() {
 
 export default async function HomePage() {
   const clusters = await getLatestClusters();
-  const [top, ...rest] = clusters;
+  const [top] = clusters;
 
   return (
     <div style={{ background: "#FAFAF8" }}>
@@ -88,7 +88,6 @@ export default async function HomePage() {
             <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#2D6A4F", opacity: 0.6, animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite" }} />
             <span style={{ position: "relative", width: 8, height: 8, borderRadius: "50%", background: "#2D6A4F" }} />
           </span>
-          <style>{`@keyframes ping { 75%,100% { transform: scale(2); opacity: 0; } }`}</style>
           <span style={{ ...S.label }}>Live</span>
           <span style={{ color: "#E8E8E4" }}>·</span>
           <span style={{ fontSize: 12, color: "#9A9A9A" }}>Monitoring SEC Form 4 filings daily</span>
@@ -124,7 +123,7 @@ export default async function HomePage() {
                   {Math.ceil((new Date(top.payload.cluster_end_date).getTime() - new Date(top.payload.cluster_start_date).getTime()) / 86400000) + 1}-day
                   window — the highest cluster signal score this week.
                 </p>
-                <div style={{ display: "flex", gap: 40 }}>
+                <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
                   {[
                     { value: top.payload.insider_count.toString(), label: "Insiders" },
                     { value: `$${Math.round(top.payload.total_value_usd / 1000)}K`, label: "Total bought" },
@@ -147,10 +146,10 @@ export default async function HomePage() {
             <h1 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: "clamp(40px, 6vw, 56px)", lineHeight: 1.1, letterSpacing: "-0.02em", color: "#1A1A1A", marginBottom: 24 }}>
               When executives buy together,<br />pay attention.
             </h1>
-            <p style={{ fontSize: 16, fontWeight: 300, color: "#6A6A6A", lineHeight: 1.75, maxWidth: 500, marginBottom: 40 }}>
-              ClusterDesk detects when 2+ insiders at the same micro-cap company buy their own stock within days of each other — and sends you the alert.
+            <p style={{ fontSize: 15, fontWeight: 300, color: "#6A6A6A", lineHeight: 1.75, maxWidth: 500, marginBottom: 40 }}>
+              ClusterDesk detects when 2+ insiders at the same micro-cap company buy their own stock within days of each other. Below $500M, large funds can&apos;t take meaningful positions without moving the price against themselves — so they don&apos;t. Retail can act on the same signal without competing with institutional money.
             </p>
-            <EmailCapture source="landing" />
+            <EmailCapture source="landing" variant="hero-no-live-signals" />
           </div>
         </div>
       )}
@@ -159,14 +158,14 @@ export default async function HomePage() {
         {/* Subscribe CTA (shown below hero when top cluster exists) */}
         {top && (
           <div style={{ padding: "40px 0", borderBottom: "1px solid #E8E8E4", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 40, flexWrap: "wrap" }}>
-            <div>
+            <div style={{ flex: "1 1 240px" }}>
               <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 22, color: "#1A1A1A", marginBottom: 4 }}>
-                Get the next alert before the market does.
+                Get Friday&apos;s top insider cluster buys before market open.
               </p>
-              <p style={{ fontSize: 13, fontWeight: 300, color: "#9A9A9A" }}>Free. One email per cluster. Unsubscribe anytime.</p>
+              <p style={{ fontSize: 13, fontWeight: 300, color: "#9A9A9A" }}>Free weekly digest. No trading-room noise. Unsubscribe anytime.</p>
             </div>
             <div style={{ flexShrink: 0 }}>
-              <EmailCapture source="landing" />
+              <EmailCapture source="landing" variant="top-signal-cta" />
             </div>
           </div>
         )}
@@ -182,9 +181,13 @@ export default async function HomePage() {
                 A <strong style={{ color: "#1A1A1A" }}>cluster buy</strong> happens when two or more company insiders — executives, directors, or major shareholders — purchase stock{" "}
                 <strong style={{ color: "#1A1A1A" }}>independently within a short window</strong>. Unlike a single trade, which can be noise, a cluster signals broad internal conviction: multiple people with direct knowledge of the business are all betting their own money at the same time.
               </p>
-              <p style={{ fontSize: 13, color: "#6A6A6A", lineHeight: 1.65, marginBottom: 12, maxWidth: 560 }}>
+              <p style={{ fontSize: 14, color: "#6A6A6A", lineHeight: 1.7, marginBottom: 12, maxWidth: 560 }}>
                 The academic evidence backs it up. Alldredge & Blank (2019) found that insider purchases made within 2 days of a colleague&apos;s purchase generate{" "}
                 <strong style={{ color: "#1A1A1A" }}>2.1% abnormal returns over the following month</strong> — nearly double the 1.2% from solitary insider trades. Lakonishok & Lee (2001) found the effect is strongest in smaller firms, where informational advantages are largest.
+              </p>
+              <p style={{ fontSize: 15, color: "#4A4A4A", lineHeight: 1.7, marginBottom: 12, maxWidth: 560 }}>
+                <strong style={{ color: "#1A1A1A" }}>Why micro-cap specifically.</strong>{" "}
+                At large-cap companies, institutional funds have already priced in the signal before a retail investor can act — they have faster data, bigger teams, and algorithmic execution. Below $500M, that advantage flips. A $5B fund buying even 1% of a $150M company represents real liquidity risk: enough to move the price against its own trade. They stay out. Retail investors face no such constraint. When a cluster forms at a $120M company, you&apos;re reading the same public SEC filing as Goldman Sachs — in a market where Goldman Sachs is structurally excluded.
               </p>
               <p style={{ fontSize: 12, color: "#C0C0C0" }}>
                 Source: SEC Form 4 filings, publicly available within 2 business days of each trade.{" "}
@@ -231,14 +234,14 @@ export default async function HomePage() {
                 {
                   n: "03",
                   title: "Score & alert delivery",
-                  body: "Each cluster receives a 0–100 conviction score. Clusters scoring 60+ are published and emailed within 24 hours of the final Form 4 filing. No noise. Just the signal.",
+                  body: "Each cluster receives a 0–100 conviction score. The weekly digest surfaces the highest-quality signals every Friday before market open, with links to the full filing breakdowns.",
                 },
               ].map(({ n, title, body }) => (
                 <div key={n} style={{ display: "grid", gridTemplateColumns: "48px 1fr", gap: 24 }}>
                   <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "#C0C0C0", paddingTop: 2 }}>{n}</span>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 600, color: "#1A1A1A", marginBottom: 6 }}>{title}</p>
-                    <p style={{ fontSize: 14, fontWeight: 300, color: "#6A6A6A", lineHeight: 1.65 }}>{body}</p>
+                    <p style={{ fontSize: 15, fontWeight: 300, color: "#6A6A6A", lineHeight: 1.7 }}>{body}</p>
                   </div>
                 </div>
               ))}
@@ -253,8 +256,8 @@ export default async function HomePage() {
               <p style={S.label}>What you get</p>
             </div>
             <div>
-              <p style={{ fontSize: 14, fontWeight: 300, color: "#6A6A6A", marginBottom: 24, lineHeight: 1.6 }}>
-                Every qualifying cluster buy arrives as a push notification and email with the full breakdown — who bought, how much, their title, and what the conviction score means.
+              <p style={{ fontSize: 15, fontWeight: 300, color: "#6A6A6A", marginBottom: 24, lineHeight: 1.6 }}>
+                Every Friday before market open, the digest summarizes the week&apos;s strongest cluster buys — who bought, how much, their title, why the setup matters, and what the conviction score means.
               </p>
               <AlertPreview />
             </div>
@@ -265,11 +268,11 @@ export default async function HomePage() {
         {!top && (
           <div style={{ padding: "80px 0" }}>
             <p style={{ ...S.label, marginBottom: 12 }}>Don&apos;t miss the next signal</p>
-            <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 36, letterSpacing: "-0.02em", color: "#1A1A1A", marginBottom: 8, lineHeight: 1.1 }}>
-              Get alerted when a cluster buy is detected.
+            <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 40, letterSpacing: "-0.02em", color: "#1A1A1A", marginBottom: 8, lineHeight: 1.1 }}>
+              Get the top cluster buys every Friday.
             </p>
-            <p style={{ fontSize: 13, fontWeight: 300, color: "#9A9A9A", marginBottom: 32 }}>Free. Alerts delivered within 24 hours.</p>
-            <EmailCapture source="landing-bottom" />
+            <p style={{ fontSize: 13, fontWeight: 300, color: "#9A9A9A", marginBottom: 32 }}>Free weekly digest before market open. Built from SEC Form 4 filings.</p>
+            <EmailCapture source="landing" variant="bottom-cta" />
           </div>
         )}
       </div>

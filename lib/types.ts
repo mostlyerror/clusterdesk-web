@@ -47,6 +47,10 @@ export interface EmailSubscriberRow {
   id?: number;
   email: string;
   signup_source: string;
+  signup_ticker?: string | null;
+  signup_campaign?: string | null;
+  signup_variant?: string | null;
+  signup_referrer?: string | null;
   created_at?: string;
 }
 

@@ -14,6 +14,12 @@ interface Cluster {
   ticker: string;
   company_name: string;
   score: number;
+  insider_count?: number;
+  total_value_usd?: number;
+  market_cap_usd?: number;
+  cluster_start_date?: string;
+  cluster_end_date?: string;
+  roles?: string[];
 }
 
 interface Props {
@@ -22,8 +28,28 @@ interface Props {
 }
 
 const PREVIEW_CLUSTERS: Cluster[] = [
-  { ticker: "OFIX", company_name: "Orthofix Medical Inc", score: 74 },
-  { ticker: "HCAT", company_name: "Health Catalyst Inc", score: 68 },
+  {
+    ticker: "OFIX",
+    company_name: "Orthofix Medical Inc",
+    score: 74,
+    insider_count: 3,
+    total_value_usd: 420000,
+    market_cap_usd: 490000000,
+    cluster_start_date: "2026-05-05",
+    cluster_end_date: "2026-05-08",
+    roles: ["CEO", "Director"],
+  },
+  {
+    ticker: "HCAT",
+    company_name: "Health Catalyst Inc",
+    score: 68,
+    insider_count: 2,
+    total_value_usd: 185000,
+    market_cap_usd: 310000000,
+    cluster_start_date: "2026-05-06",
+    cluster_end_date: "2026-05-07",
+    roles: ["CFO", "Director"],
+  },
 ];
 
 export function PreviewProps(): Props {
@@ -37,14 +63,15 @@ export function WeeklyDigestEmail({ clusters = PREVIEW_CLUSTERS, weekOf = "This 
   return (
     <Html>
       <Head />
-      <Preview>This week&apos;s insider cluster buys — {weekOf}</Preview>
+      <Preview>Friday&apos;s top insider cluster buys — {weekOf}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Heading style={heading}>This week&apos;s cluster buys</Heading>
-          <Text style={subheading}>{weekOf}</Text>
+          <Heading style={heading}>Friday&apos;s top insider cluster buys</Heading>
+          <Text style={subheading}>{weekOf} · before market open</Text>
           <Text style={intro}>
-            Here are this week&apos;s high-conviction insider cluster buys —
-            stocks where multiple insiders bought within days of each other.
+            Here are this week&apos;s highest-conviction cluster buys — stocks where
+            multiple insiders bought with their own money within days of each
+            other.
           </Text>
           {clusters.map((cluster) => (
             <div key={cluster.ticker} style={clusterRow}>
@@ -55,7 +82,8 @@ export function WeeklyDigestEmail({ clusters = PREVIEW_CLUSTERS, weekOf = "This 
                 {cluster.ticker}
               </Link>
               <Text style={companyName}>{cluster.company_name}</Text>
-              <Text style={scoreText}>Score: {cluster.score}</Text>
+              <Text style={reasonText}>{reasonToCare(cluster)}</Text>
+              <Text style={scoreText}>Conviction score: {cluster.score}/100</Text>
             </div>
           ))}
           <Hr style={hr} />
@@ -139,6 +167,13 @@ const scoreText = {
   margin: "2px 0",
 };
 
+const reasonText = {
+  fontSize: "13px",
+  color: "#444444",
+  lineHeight: "1.55",
+  margin: "8px 0 2px",
+};
+
 const hr = {
   borderColor: "#e5e5e5",
   margin: "32px 0 24px",
@@ -159,3 +194,43 @@ const footer = {
 const footerLink = {
   color: "#888888",
 };
+
+function reasonToCare(cluster: Cluster): string {
+  const parts: string[] = [];
+  const insiderCount = cluster.insider_count ?? 0;
+  const totalValue = cluster.total_value_usd ?? 0;
+  const marketCap = cluster.market_cap_usd ?? 0;
+  const roles = cluster.roles ?? [];
+  const windowDays = getWindowDays(cluster.cluster_start_date, cluster.cluster_end_date);
+  const seniorRoles = roles.filter((role) => /CEO|CFO|Chief|President/i.test(role));
+
+  if (insiderCount > 0 && totalValue > 0) {
+    parts.push(`${insiderCount} insiders bought ${formatUsd(totalValue)}`);
+  }
+  if (windowDays !== null) {
+    parts.push(`over ${windowDays} day${windowDays === 1 ? "" : "s"}`);
+  }
+  if (seniorRoles.length > 0) {
+    parts.push(`with ${seniorRoles.slice(0, 2).join(" and ")} participation`);
+  }
+  if (totalValue > 0 && marketCap > 0) {
+    parts.push(`${((totalValue / marketCap) * 100).toFixed(2)}% of market cap`);
+  }
+
+  return parts.length
+    ? `Why it matters: ${parts.join(", ")}.`
+    : "Why it matters: multiple insiders bought within the same short window.";
+}
+
+function formatUsd(value: number): string {
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  return `$${Math.round(value / 1_000)}K`;
+}
+
+function getWindowDays(start?: string, end?: string): number | null {
+  if (!start || !end) return null;
+  const startMs = new Date(start).getTime();
+  const endMs = new Date(end).getTime();
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return null;
+  return Math.max(1, Math.round((endMs - startMs) / 86_400_000) + 1);
+}

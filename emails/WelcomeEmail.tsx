@@ -14,14 +14,14 @@ export function WelcomeEmail() {
   return (
     <Html>
       <Head />
-      <Preview>Every weekday morning, we surface high-conviction insider cluster buys.</Preview>
+      <Preview>Every Friday before market open, we surface high-conviction insider cluster buys.</Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={heading}>You&apos;re on the list.</Heading>
           <Text style={text}>
-            Every weekday morning, ClusterDesk surfaces high-conviction insider
-            cluster buys in U.S. micro-cap stocks — companies where multiple
-            insiders bought within days of each other.
+            Every Friday before market open, ClusterDesk sends the week&apos;s
+            strongest insider cluster buys in U.S. micro-cap stocks — companies
+            where multiple insiders bought within days of each other.
           </Text>
           <Text style={text}>
             We score each cluster on conviction, insider seniority, and trade
@@ -32,7 +32,7 @@ export function WelcomeEmail() {
             <Link href="https://x.com/clusterdesk" style={link}>
               @clusterdesk
             </Link>{" "}
-            for daily alerts, or visit{" "}
+            for public signal notes, or visit{" "}
             <Link href="https://clusterdesk.io" style={link}>
               clusterdesk.io
             </Link>{" "}

@@ -19,7 +19,7 @@ const sections: { title: string; content?: string; items?: string[]; small?: boo
     title: "Methodology",
     items: [
       "Source: SEC Form 4 filings via EDGAR",
-      "Universe: U.S. micro-cap stocks ($50M – $500M market cap)",
+      "Universe: U.S. micro-cap stocks ($50M – $500M market cap) — institutional funds face liquidity constraints below this range and cannot take meaningful positions without moving the price against themselves, leaving retail investors on equal footing with the same public SEC filing data",
       "Open market purchases only (transaction code P)",
       "Minimum $25,000 per insider, $100,000 combined cluster value",
       "Excludes: 10b5-1 plans, RSU vesting, option exercises, ESPPs",
@@ -92,12 +92,12 @@ export default function AboutPage() {
           <p style={label}>{title}</p>
           <div>
             {content && (
-              <p style={{ fontSize: small ? 13 : 15, fontWeight: 300, color: "#4A4A4A", lineHeight: 1.75 }}>{content}</p>
+              <p style={{ fontSize: small ? 13 : 15, fontWeight: 300, color: "#4A4A4A", lineHeight: 1.75, maxWidth: 600 }}>{content}</p>
             )}
             {items && (
               <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {items.map((item) => (
-                  <li key={item} style={{ fontSize: 14, color: "#4A4A4A", lineHeight: 1.55, display: "flex", gap: 12 }}>
+                  <li key={item} style={{ fontSize: 15, color: "#4A4A4A", lineHeight: 1.55, display: "flex", gap: 12 }}>
                     <span style={{ color: "#2D6A4F", flexShrink: 0 }}>—</span>
                     <span>{item}</span>
                   </li>
@@ -114,7 +114,7 @@ export default function AboutPage() {
           <p style={label}>Academic research</p>
         </div>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: "#4A4A4A", lineHeight: 1.75, marginBottom: 40 }}>
+          <p style={{ fontSize: 15, fontWeight: 300, color: "#4A4A4A", lineHeight: 1.75, marginBottom: 40, maxWidth: 600 }}>
             Insider cluster buying is not a novel idea — it has been studied in peer-reviewed finance journals for decades. The evidence consistently shows that coordinated insider purchases, especially in smaller firms, carry significant predictive power for future returns.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
@@ -132,7 +132,7 @@ export default function AboutPage() {
                 >
                   {p.title} ↗
                 </a>
-                <p style={{ fontSize: 13, fontWeight: 300, color: "#6A6A6A", lineHeight: 1.7, marginBottom: 4 }}>{p.finding}</p>
+                <p style={{ fontSize: 14, fontWeight: 300, color: "#6A6A6A", lineHeight: 1.7, marginBottom: 4 }}>{p.finding}</p>
                 <p style={{ fontSize: 11, color: "#C0C0C0" }}>{p.vol}</p>
               </div>
             ))}
@@ -143,13 +143,6 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Disclaimer repeated */}
-      <div style={{ padding: "40px 0", display: "grid", gridTemplateColumns: "200px 1fr", gap: 48 }}>
-        <p style={label}>Disclaimer</p>
-        <p style={{ fontSize: 13, fontWeight: 300, color: "#4A4A4A", lineHeight: 1.75 }}>
-          ClusterDesk is for informational and educational purposes only. It is not financial advice, investment advice, or a recommendation to buy or sell any security. Information is derived from publicly available SEC Form 4 filings. Past insider trading patterns do not guarantee future stock performance. Always conduct your own research and consult a licensed financial advisor before making investment decisions. ClusterDesk is not a registered investment adviser.
-        </p>
-      </div>
     </div>
   );
 }
